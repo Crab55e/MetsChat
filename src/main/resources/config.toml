@@ -1,2 +1,2 @@
-plugin-message-prefix = "<green>[MetsChat]</green>"
+plugin-message-prefix = "<green>[MetsChat]</green> "
 cross-server-message-format = "<hover:show_text:'from %s'>\\<<yellow>*</yellow>%s></hover> %s"
