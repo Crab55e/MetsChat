@@ -1,0 +1,1 @@
+cross-server-message-format = "<hover:show_text:'from %s'>\\<<yellow>*</yellow>%s></hover> %s"
