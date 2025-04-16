@@ -28,7 +28,7 @@ class MetsChat @Inject constructor(val logger: Logger, val server: ProxyServer) 
             val receiverServerName = receiver.currentServer.get().serverInfo.name;
 
             if (receiverServerName == senderServerName) return@playerLoop  // continue的な処理！
-
+            あからさまにエラー。
             receiver.sendMessage(
                 mm.deserialize(
                     String.format(
