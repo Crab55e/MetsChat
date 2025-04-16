@@ -23,5 +23,9 @@
 hs_err_pid*
 replay_pid*
 
-# build files
-build/*
+# IDE
+.idea/
+
+# build
+out/
+build/
