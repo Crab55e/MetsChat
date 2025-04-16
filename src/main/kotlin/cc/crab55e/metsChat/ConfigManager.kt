@@ -12,16 +12,17 @@ class ConfigManager(
     private val dataDirectory: Path
 ) {
     private lateinit var config: Toml
+    private var configFileName = "config.toml"
     init {
         reloadConfig()
     }
+    fun getConfigFileName(): String { return this.configFileName }
     fun reloadConfig() {
-        val configFileName = "config.toml"
         val configFile: File = dataDirectory.resolve(configFileName).toFile()
         if (!configFile.exists()) {
             configFile.parentFile.mkdirs()
-            val resourceStream = plugin::class.java.classLoader.getResourceAsStream("config.toml")
-                ?: throw RuntimeException("resources/config.toml is not found!!!")
+            val resourceStream = plugin::class.java.classLoader.getResourceAsStream(configFileName)
+                ?: throw RuntimeException("$configFileName is not found!!!")
 
             resourceStream.use { input ->
                 configFile.outputStream().use { output ->

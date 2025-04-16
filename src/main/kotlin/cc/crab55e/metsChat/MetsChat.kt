@@ -69,7 +69,6 @@ class MetsChat @Inject constructor(
                 )
             )
         }
-
     }
 
     @Subscribe
