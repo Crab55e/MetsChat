@@ -1,6 +1,6 @@
 package cc.crab55e.metsChat
 
-import cc.crab55e.metsChat.command.TestBrigadierCommand.createBrigadierCommand
+import cc.crab55e.metsChat.command.BaseBrigadierCommand.createBrigadierCommand
 import com.google.inject.Inject
 import com.velocitypowered.api.command.CommandManager
 import com.velocitypowered.api.event.Subscribe
@@ -61,7 +61,7 @@ class MetsChat @Inject constructor(
             receiver.sendMessage(
                 mm.deserialize(
                     String.format(
-                        "<hover:show_text:'from %s'>\\<<yellow>*</yellow>%s></hover> %s",
+                        crossServerMessageFormat,
                         senderServerName,
                         sender.username,
                         message
@@ -77,12 +77,12 @@ class MetsChat @Inject constructor(
         logger.info("Initializing")
         val commandManager: CommandManager = server.commandManager
 
-        val commandMeta = commandManager.metaBuilder("test")
-            .aliases("otherAlias", "anotherAlias")
+        val commandMeta = commandManager.metaBuilder("metschat")
+            .aliases("mchat")
             .plugin(this)
             .build()
 
-        val commandToRegister = createBrigadierCommand(server)
+        val commandToRegister = createBrigadierCommand(this)
 
         commandManager.register(commandMeta, commandToRegister)
 
