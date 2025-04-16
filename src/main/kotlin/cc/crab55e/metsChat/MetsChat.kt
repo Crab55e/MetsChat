@@ -32,7 +32,7 @@ class MetsChat @Inject constructor(val logger: Logger, val server: ProxyServer) 
             receiver.sendMessage(
                 mm.deserialize(
                     String.format(
-                        "<hover:show_text:'FROM %s'>\\<<yellow>*</yellow>%s></hover> %s",
+                        "<hover:show_text:'from %s'>\\<<yellow>*</yellow>%s></hover> %s",
                         senderServerName,
                         sender.username,
                         message
