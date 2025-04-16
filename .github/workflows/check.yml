@@ -1,0 +1,23 @@
+# .github/workflows/check.yml
+name: Kotlin Plugin Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Get sources
+      uses: actions/checkout@v3
+
+    - name: Setup jdk
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Build
+      run: ./gradlew build --no-daemon
