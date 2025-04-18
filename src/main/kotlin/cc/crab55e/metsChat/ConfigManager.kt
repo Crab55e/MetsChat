@@ -1,9 +1,6 @@
 package cc.crab55e.metsChat
 
-import com.google.inject.Inject
 import com.moandjiezana.toml.Toml
-import com.velocitypowered.api.plugin.Plugin
-import com.velocitypowered.api.plugin.annotation.DataDirectory
 import java.io.File
 import java.nio.file.Path
 

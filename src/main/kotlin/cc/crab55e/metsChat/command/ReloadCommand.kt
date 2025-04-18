@@ -1,7 +1,5 @@
 package cc.crab55e.metsChat.command
 
-import cc.crab55e.metsChat.BuildConstants
-import cc.crab55e.metsChat.ConfigManager
 import cc.crab55e.metsChat.MetsChat
 import cc.crab55e.metsChat.util.PrefixedMessageBuilder
 import com.mojang.brigadier.Command
@@ -17,7 +15,7 @@ class ReloadCommand(
 
         if (arg.equals("reload", ignoreCase = true)) {
             plugin.getConfigManager().reloadConfig()
-            val configFileName = ConfigManager(plugin, plugin.getDataDirectory()).getConfigFileName()
+            val configFileName = plugin.getConfigManager().getConfigFileName()
             val message = PrefixedMessageBuilder().make(plugin, "Reloaded $configFileName")
             context.source?.sendMessage(message)
         } else {
