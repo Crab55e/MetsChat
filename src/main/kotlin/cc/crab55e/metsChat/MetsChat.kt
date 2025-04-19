@@ -103,7 +103,7 @@ class MetsChat @Inject constructor(
         } else if (discordBotTokenType == "raw-string") {
             botToken = discordBotTokenValue
         } else {
-            logger.error("Invalid bot token type in ${getConfigManager().getConfigFileName()}")
+            logger.error("$discordBotTokenType is Invalid bot token type in ${getConfigManager().getConfigFileName()}")
             this.server.shutdown()
             return
         }
