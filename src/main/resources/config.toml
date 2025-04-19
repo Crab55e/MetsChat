@@ -2,7 +2,8 @@
 plugin-message-prefix = "<green>[MetsChat]</green> "
 
 [minecraft]
-cross-server-message-format = "<hover:show_text:'from %s'>\\<<yellow>*</yellow>%s></hover> %s"
+cross-server-message-format = "<hover:show_text:'from {senderServer}'>\\<<yellow>*</yellow>{senderName}></hover> {message}"
+# placeholders: senderServer, senderName, message
 
 [discord]
 [discord.bot-token]
