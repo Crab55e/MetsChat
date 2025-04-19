@@ -3,8 +3,6 @@ package cc.crab55e.metsChat.command
 import cc.crab55e.metsChat.MetsChat
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.velocitypowered.api.command.BrigadierCommand
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.minimessage.MiniMessage
 
 object BaseBrigadierCommand {
     fun createBrigadierCommand(plugin: MetsChat): BrigadierCommand {
