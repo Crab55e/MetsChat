@@ -19,5 +19,7 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
+    - name: Add permission to gradlew
+      run: chmod +x ./gradlew
     - name: Build
       run: ./gradlew build --no-daemon
