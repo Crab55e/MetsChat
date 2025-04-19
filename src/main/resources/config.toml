@@ -1,2 +1,13 @@
+[general]
 plugin-message-prefix = "<green>[MetsChat]</green> "
+
+[minecraft]
 cross-server-message-format = "<hover:show_text:'from %s'>\\<<yellow>*</yellow>%s></hover> %s"
+
+[discord]
+[discord.bot-token]
+type = "system-environ" # "system-environ" or "raw-string"
+value = "DiscordSRVBotToken"
+
+[discord.channel-ids]
+central-forum-channel-id = "ChannelID"
