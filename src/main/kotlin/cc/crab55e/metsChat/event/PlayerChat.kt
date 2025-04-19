@@ -1,6 +1,7 @@
 package cc.crab55e.metsChat.event
 
 import cc.crab55e.metsChat.MetsChat
+import cc.crab55e.metsChat.util.PlaceholderFormatter
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.player.PlayerChatEvent
 import net.kyori.adventure.text.minimessage.MiniMessage
@@ -28,11 +29,13 @@ class ChatEventListener(
 
             receiver.sendMessage(
                 mm.deserialize(
-                    String.format(
+                    PlaceholderFormatter.format(
                         crossServerMessageFormat,
-                        senderServerName,
-                        sender.username,
-                        message
+                        mapOf(
+                            "senderServer" to senderServerName,
+                            "senderName" to sender.username,
+                            "message" to message
+                        )
                     )
                 )
             )
