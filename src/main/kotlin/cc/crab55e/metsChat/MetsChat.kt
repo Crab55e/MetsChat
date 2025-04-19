@@ -41,14 +41,6 @@ class MetsChat @Inject constructor(
         return configManager
     }
 
-    fun getDataDirectory(): Path {
-        return dataDirectory
-    }
-
-    fun getCommandManager(): CommandManager {
-        return server.commandManager
-    }
-
     @Subscribe
     fun onProxyInitialization(event: ProxyInitializeEvent) {
         logger.info("Initializing")
