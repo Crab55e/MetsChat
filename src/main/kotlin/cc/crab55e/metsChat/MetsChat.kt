@@ -5,7 +5,6 @@ import cc.crab55e.metsChat.discord.MessageReceived
 import cc.crab55e.metsChat.event.ChatEventListener
 
 import com.google.inject.Inject
-import com.velocitypowered.api.command.CommandManager
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent
 import com.velocitypowered.api.plugin.Plugin
@@ -39,14 +38,6 @@ class MetsChat @Inject constructor(
 
     fun getConfigManager(): ConfigManager {
         return configManager
-    }
-
-    fun getDataDirectory(): Path {
-        return dataDirectory
-    }
-
-    fun getCommandManager(): CommandManager {
-        return server.commandManager
     }
 
     @Subscribe
