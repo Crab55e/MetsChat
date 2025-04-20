@@ -16,5 +16,6 @@ boot-message = "1362971564836130838"
 
 [discord.message-share.to-minecraft]
 enabled = true
-format = "[<click:open_url:'{discordMessageUrl}'><hover:show_text:'Discordで開く'><blue>Discord</blue></hover></click> | <hover:show_text:'{allRoleNames}'><color:#{roleColorHex}>{authorName}</color></hover>] {markdownParsedMessage}"
-# placeholders: authorName, markdownParsedMessage, roleColorHex, allRoleNames, discordMessageUrl,
+format = "[<click:open_url:'{discordMessageUrl}'><hover:show_text:'Discordで開く'><blue>Discord</blue></hover></click> | <hover:show_text:'{allRoleNames}'><color:#{roleColorHex}>{authorName}</color></hover>] {message}"
+# placeholders: authorName, message, roleColorHex, allRoleNames, discordMessageUrl,
+parse-markdown = true
