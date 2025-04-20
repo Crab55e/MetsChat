@@ -1,13 +1,16 @@
 package cc.crab55e.metsChat.discord
 
 import cc.crab55e.metsChat.MetsChat
+import cc.crab55e.metsChat.util.MarkdownParser
 import cc.crab55e.metsChat.util.PlaceholderFormatter
 import com.moandjiezana.toml.Toml
 import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.kyori.adventure.text.minimessage.MiniMessage
+import okhttp3.internal.toHexString
 
 
 class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
@@ -27,14 +30,17 @@ class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
         if (event.author.isBot) return
         if (!toMinecraftTable.getBoolean("enabled")) return
 
-        val markdownParsedMessage = "content"
-        val roleColorHex = "ff2222"
-        val allRoleNames = "admin, op, member"
+        val markdownParsedMessage = MarkdownParser.discordToMiniMessage(content)
+        var roleColorHex = event.member?.color?.rgb?.toHexString() ?: "ffffffff"
+        roleColorHex = roleColorHex.drop(2)
+        var allRoleNames = ""
+        event.member?.roles?.forEach{allRoleNames += "${it.name}, "}
+        allRoleNames = allRoleNames.removeSuffix(", ")
 
         val minecraftMessage = mm.deserialize( PlaceholderFormatter.format(
             minecraftMessageFormat,
             mapOf(
-                "authorName" to event.author.name,
+                "authorName" to event.author.effectiveName,
                 "markdownParsedMessage" to markdownParsedMessage,
                 "roleColorHex" to roleColorHex,
                 "allRoleNames" to allRoleNames,
