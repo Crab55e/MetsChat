@@ -27,7 +27,7 @@ class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
         if (message.channelId != centralChatChannelId) return
         if (event.author.isBot) return
         if (!toMinecraftTable.getBoolean("enabled")) return
-
+        // TODO: メッセージがreplyだったら
         val minecraftMessageContent: String
         if (parseMarkdown) {
             minecraftMessageContent = MarkdownParser.discordToMiniMessage(content)

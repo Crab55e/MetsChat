@@ -11,6 +11,7 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent
 import com.velocitypowered.api.plugin.Plugin
 import com.velocitypowered.api.plugin.annotation.DataDirectory
 import com.velocitypowered.api.proxy.ProxyServer
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.requests.GatewayIntent
 
@@ -21,6 +22,7 @@ import java.nio.file.Path
 @Plugin(
     id = "metschat", name = "MetsChat", version = BuildConstants.VERSION
 )
+
 class MetsChat @Inject constructor(
     private val logger: Logger,
     private val server: ProxyServer,
@@ -28,6 +30,7 @@ class MetsChat @Inject constructor(
 ) {
 
     private val configManager = ConfigManager(this, dataDirectory)
+    private lateinit var discordClient: JDA
 
     fun getLogger(): Logger {
         return logger
@@ -39,6 +42,10 @@ class MetsChat @Inject constructor(
 
     fun getConfigManager(): ConfigManager {
         return configManager
+    }
+
+    fun getDiscordClient(): JDA {
+        return discordClient
     }
 
     fun getDataDirectory(): Path {
@@ -78,13 +85,13 @@ class MetsChat @Inject constructor(
             return
         }
 
-        val discordAPI = JDABuilder.createDefault(
+        discordClient = JDABuilder.createDefault(
             botToken,
             GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.MESSAGE_CONTENT,
             GatewayIntent.GUILD_MEMBERS
         ).build()
-        discordAPI.addEventListener(MessageReceived(this))
+        discordClient.addEventListener(MessageReceived(this))
 
         logger.info("Initialized.")
     }
