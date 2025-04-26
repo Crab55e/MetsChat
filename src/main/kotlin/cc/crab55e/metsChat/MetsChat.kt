@@ -3,6 +3,7 @@ package cc.crab55e.metsChat
 import cc.crab55e.metsChat.command.BaseBrigadierCommand
 import cc.crab55e.metsChat.discord.MessageReceived
 import cc.crab55e.metsChat.event.ChatEventListener
+import cc.crab55e.metsChat.event.PlayerJoin
 import cc.crab55e.metsChat.util.ColorCodeToColor
 
 import com.google.inject.Inject
@@ -47,6 +48,10 @@ class MetsChat @Inject constructor(
     fun getConfigManager(): ConfigManager {
         return configManager
     }
+    fun getDiscordClient(): JDA? {
+        discordClient?.awaitReady()
+        return discordClient
+    }
 
     fun getDataDirectory(): Path {
         return dataDirectory
@@ -59,17 +64,6 @@ class MetsChat @Inject constructor(
     @Subscribe
     fun onProxyInitialization(event: ProxyInitializeEvent) {
         logger.info("Initializing")
-
-        val eventManager = server.eventManager
-        eventManager.register(this, ChatEventListener(this))
-
-        val commandManager = server.commandManager
-        val commandMeta = commandManager.metaBuilder("metschat")
-            .aliases("mchat")
-            .plugin(this)
-            .build()
-
-        commandManager.register(commandMeta, BaseBrigadierCommand.createBrigadierCommand(this))
 
         val botToken: String
         val discordBotTokenTable = getConfigManager().getConfig().getTable("discord.bot-token")
@@ -111,6 +105,19 @@ class MetsChat @Inject constructor(
 
             bootMessageChannel.sendMessageEmbeds(embed).queue()
         }
+
+        val eventManager = server.eventManager
+        eventManager.register(this, ChatEventListener(this))
+        eventManager.register(this, PlayerJoin(this))
+
+        val commandManager = server.commandManager
+        val commandMeta = commandManager.metaBuilder("metschat")
+            .aliases("mchat")
+            .plugin(this)
+            .build()
+
+        commandManager.register(commandMeta, BaseBrigadierCommand.createBrigadierCommand(this))
+
         logger.info("Initialized.")
     }
 

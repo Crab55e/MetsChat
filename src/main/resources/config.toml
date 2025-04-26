@@ -15,6 +15,7 @@ value = "DiscordSRVBotToken"
 [discord.channel-ids]
 central-chat = "1362971564836130838"
 boot-message = "1362971564836130838"
+player-join-leave = "1362971564836130838"
 
 [discord.message-share.to-minecraft]
 enabled = true
