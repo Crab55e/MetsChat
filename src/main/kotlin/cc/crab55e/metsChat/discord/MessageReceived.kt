@@ -10,7 +10,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage
 import okhttp3.internal.toHexString
 
 
-class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
+class MessageReceived(plugin: MetsChat) : ListenerAdapter() {
     private val logger = plugin.getLogger()
     private val config = plugin.getConfigManager().getConfig()
     private val channelIdsTable = config.getTable("discord.channel-ids")
