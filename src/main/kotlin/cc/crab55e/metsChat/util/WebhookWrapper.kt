@@ -18,10 +18,23 @@ import okhttp3.Response
 import java.util.*
 
 class WebhookWrapper(var webhookURL: String, var plugin: MetsChat) {
+    fun send(message: String): Response {
+        val client = OkHttpClient()
+        val body = message.toRequestBody("application/json".toMediaType())
+
+        val request = Request.Builder()
+            .url(webhookURL)
+            .post(body)
+            .build()
+
+        client.newCall(request).execute().use { res ->
+            return res
+        }
+
+    }
     fun send(message: Message): Response {
         val client = OkHttpClient()
         val messageMap = parseMessage(message)
-        plugin.getLogger().info(messageMap.toString())
         val messageJson = Gson().toJson(messageMap)
         val body = messageJson.toRequestBody("application/json".toMediaType())
 

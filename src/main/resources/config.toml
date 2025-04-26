@@ -24,12 +24,17 @@ parse-markdown = true
 
 [discord.message-share.to-discord]
 enabled = true
+[discord.message-share.to-discord.boot-message]
+initialize = 'プロキシが起動しました'
+initialize-color = "#22ff22"
+shutdown = 'プロキシが停止しました'
+shutdown-color = "#ff2222"
 [discord.message-share.webhook]
 enabled = true
 webhook-url = "https://discord.com/api/webhooks/1364032685311393822/9aq4-tTr2L6VAiCynGPLCuqG05hmhVJc3fORzY8X8usVZ1WnzZeSm0R40fvplbSSdogX"
 author-icon-url = "https://mc-heads.net/combo/{uuid}"
 # placeholders: mcid, uuid, uuidNoDashes, textureId
 [discord.message-share.to-discord.formats]
-sender = "{senderName}" # disable if `use-webhook` is false
-message = "{message}"
-# placeholders; senderName, message, serverName,
+username = "{serverName} / {senderName}" # disable if `use-webhook` is false
+content = "{message}"
+# placeholders: senderName, message, serverName,

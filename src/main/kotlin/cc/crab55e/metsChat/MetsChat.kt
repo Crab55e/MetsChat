@@ -3,19 +3,24 @@ package cc.crab55e.metsChat
 import cc.crab55e.metsChat.command.BaseBrigadierCommand
 import cc.crab55e.metsChat.discord.MessageReceived
 import cc.crab55e.metsChat.event.ChatEventListener
+import cc.crab55e.metsChat.util.ColorCodeToColor
 
 import com.google.inject.Inject
 import com.velocitypowered.api.command.CommandManager
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent
 import com.velocitypowered.api.plugin.Plugin
 import com.velocitypowered.api.plugin.annotation.DataDirectory
 import com.velocitypowered.api.proxy.ProxyServer
+import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.requests.GatewayIntent
 
 import org.slf4j.Logger
+import java.awt.Color
 import java.nio.file.Path
 
 
@@ -28,7 +33,7 @@ class MetsChat @Inject constructor(
     private val server: ProxyServer,
     @DataDirectory private val dataDirectory: Path
 ) {
-
+    private var discordClient: JDA? = null
     private val configManager = ConfigManager(this, dataDirectory)
 
     fun getLogger(): Logger {
@@ -70,7 +75,7 @@ class MetsChat @Inject constructor(
         val discordBotTokenTable = getConfigManager().getConfig().getTable("discord.bot-token")
         val discordBotTokenType = discordBotTokenTable.getString("type")
         val discordBotTokenValue = discordBotTokenTable.getString("value")
-        if (discordBotTokenType == "system-environ" ) {
+        if (discordBotTokenType == "system-environ") {
             botToken = System.getenv(discordBotTokenValue)
         } else if (discordBotTokenType == "raw-string") {
             botToken = discordBotTokenValue
@@ -80,14 +85,56 @@ class MetsChat @Inject constructor(
             return
         }
 
-        val discordClient = JDABuilder.createDefault(
+        discordClient = JDABuilder.createDefault(
             botToken,
             GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.MESSAGE_CONTENT,
             GatewayIntent.GUILD_MEMBERS
+        ).addEventListeners(
+            MessageReceived(this)
         ).build()
-        discordClient.addEventListener(MessageReceived(this))
 
+        discordClient!!.awaitReady()
+
+        val config = configManager.getConfig()
+        val channelIdsTable = config.getTable("discord.channel-ids")
+        val bootMessageChannelId = channelIdsTable.getString("boot-message")
+
+        val bootMessageChannel = discordClient!!.getChannelById(TextChannel::class.java, bootMessageChannelId)
+
+        if (bootMessageChannel != null) {
+            val bootMessagesTable = config.getTable("discord.message-share.to-discord.boot-message")
+            val embed = EmbedBuilder()
+                .setColor(ColorCodeToColor(bootMessagesTable.getString("initialize-color")).color)
+                .setTitle(bootMessagesTable.getString("initialize")) // FIXME: なぜかここら辺一体呼び出されない。
+                .build()
+
+            bootMessageChannel.sendMessageEmbeds(embed).queue()
+        }
         logger.info("Initialized.")
+    }
+
+    @Subscribe
+    fun onProxyShutdown(event: ProxyShutdownEvent) {
+        logger.info("Disabling...")
+        val config = configManager.getConfig()
+        val channelIdsTable = config.getTable("discord.channel-ids")
+        val bootMessageChannelId = channelIdsTable.getString("boot-message")
+
+        discordClient?.awaitReady()
+        val bootMessageChannel = discordClient?.getChannelById(TextChannel::class.java, bootMessageChannelId)
+
+        if (bootMessageChannel != null) {
+            val bootMessagesTable = config.getTable("discord.message-share.to-discord.boot-message")
+            val embed = EmbedBuilder()
+                .setColor(ColorCodeToColor(bootMessagesTable.getString("shutdown-color")).color)
+                .setTitle(bootMessagesTable.getString("shutdown"))
+                .build()
+
+            bootMessageChannel.sendMessageEmbeds(embed).queue()
+        }
+
+        discordClient?.shutdown()
+
     }
 }

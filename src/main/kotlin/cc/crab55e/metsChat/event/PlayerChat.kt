@@ -15,17 +15,16 @@ class ChatEventListener(
 ) {
     private val server = plugin.getServer()
     private val logger = plugin.getLogger()
-    private val config = plugin.getConfigManager().getConfig()
-
-    private val channelIdsTable = config.getTable("discord.channel-ids")
-    private val crossServerMessageShareTable = config.getTable("minecraft.cross-server-message-share")
-    private val toDiscordTable = config.getTable("discord.message-share.to-discord")
-    private val toDiscordFormatsTable = config.getTable("discord.message-share.to-discord.formats")
     private val mm = MiniMessage.miniMessage()
 
     // TODO: configにwebhook: boolなりを追加して、webhookに対応しつつmc->discordなチャット連携を実装したい
     @Subscribe
     fun onPlayerChat(event: PlayerChatEvent) {
+
+        val config = plugin.getConfigManager().getConfig()
+
+        val crossServerMessageShareTable = config.getTable("minecraft.cross-server-message-share")
+        val toDiscordTable = config.getTable("discord.message-share.to-discord")
         val sender = event.player
         val message = event.message
         val senderServerName = sender.currentServer.get().serverInfo.name
@@ -53,6 +52,7 @@ class ChatEventListener(
         }
         if (toDiscordTable.getBoolean("enabled")) {
             val webhookTable = config.getTable("discord.message-share.webhook")
+            val webhookFormatsTable = config.getTable("discord.message-share.to-discord.formats")
             if (webhookTable.getBoolean("enabled")) {
                 val webhookUrl = webhookTable.getString("webhook-url")
                 var authorIconUrl = webhookTable.getString("author-icon-url")
@@ -60,9 +60,10 @@ class ChatEventListener(
                 val senderProfilePropertiesJson = Base64.getDecoder().decode(sender.gameProfileProperties[0].value).toString(Charsets.UTF_8)
                 val mapType = object : TypeToken<Map<String, Any>>() {}.type
                 val senderProfileMap: Map<String, Any> = Gson().fromJson(senderProfilePropertiesJson, mapType)
-                val senderProfileMapTextures = senderProfileMap["textures"] as? Map<String, Any>
-                val senderProfileMapSkin = senderProfileMapTextures?.get("SKIN") as? Map<String, Any>
+                val senderProfileMapTextures = senderProfileMap["textures"] as? Map<*, *>
+                val senderProfileMapSkin = senderProfileMapTextures?.get("SKIN") as? Map<*, *>
                 val senderSkinUrl = senderProfileMapSkin?.get("url") as? String
+                // original: http://textures.minecraft.net/texture/bb20ec924eb2f949a6198f23ec4e38bcaf570d5f3b8f8003e7dcd28863007654
                 var senderTextureId = senderSkinUrl?.split("/")?.last()
                 if (senderTextureId == null) senderTextureId = "UNDEFINED"
 
@@ -76,18 +77,30 @@ class ChatEventListener(
                     )
                 )
 
+                val username = PlaceholderFormatter.format(
+                    webhookFormatsTable.getString("username"),
+                    mapOf(
+                        "senderName" to sender.username,
+                        "message" to message,
+                        "serverName" to senderServerName
+                    )
+                )
+                val content = PlaceholderFormatter.format(
+                    webhookFormatsTable.getString("content"),
+                    mapOf(
+                        "senderName" to sender.username,
+                        "message" to message,
+                        "serverName" to senderServerName
+                    )
+                )
+                // # placeholders: senderName, message, serverName,
+
                 val webhook = WebhookWrapper(webhookUrl, plugin)
-                val wEmbed = EmbedBuilder()
-                    .setColor(0xff0000)
-                    .setTitle("Title")
-                    .setFooter("Hello!")
-                    .build()
                 val wAllowedMentions = AllowedMentions()
                 val webhookMessage = Message(
-                    username = sender.username,
+                    username = username,
                     avatarURL = authorIconUrl,
-                    content = message,
-                    embeds = arrayOf(wEmbed),
+                    content = content,
                     allowedMentions = wAllowedMentions
                 )
                 webhook.send(webhookMessage)
