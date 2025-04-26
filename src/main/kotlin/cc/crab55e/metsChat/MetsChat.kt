@@ -30,7 +30,6 @@ class MetsChat @Inject constructor(
 ) {
 
     private val configManager = ConfigManager(this, dataDirectory)
-    private lateinit var discordClient: JDA
 
     fun getLogger(): Logger {
         return logger
@@ -42,10 +41,6 @@ class MetsChat @Inject constructor(
 
     fun getConfigManager(): ConfigManager {
         return configManager
-    }
-
-    fun getDiscordClient(): JDA {
-        return discordClient
     }
 
     fun getDataDirectory(): Path {
@@ -85,7 +80,7 @@ class MetsChat @Inject constructor(
             return
         }
 
-        discordClient = JDABuilder.createDefault(
+        val discordClient = JDABuilder.createDefault(
             botToken,
             GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.MESSAGE_CONTENT,

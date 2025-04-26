@@ -1,21 +1,22 @@
 package cc.crab55e.metsChat.event
 
 import cc.crab55e.metsChat.MetsChat
-import cc.crab55e.metsChat.util.PlaceholderFormatter
+import cc.crab55e.metsChat.util.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.player.PlayerChatEvent
-import net.dv8tion.jda.api.managers.WebhookManager
+import net.dv8tion.jda.api.EmbedBuilder
 import net.kyori.adventure.text.minimessage.MiniMessage
 import java.util.Base64
 
 class ChatEventListener(
-    plugin: MetsChat
+    private val plugin: MetsChat
 ) {
     private val server = plugin.getServer()
     private val logger = plugin.getLogger()
     private val config = plugin.getConfigManager().getConfig()
+
     private val channelIdsTable = config.getTable("discord.channel-ids")
     private val crossServerMessageShareTable = config.getTable("minecraft.cross-server-message-share")
     private val toDiscordTable = config.getTable("discord.message-share.to-discord")
@@ -65,7 +66,6 @@ class ChatEventListener(
                 var senderTextureId = senderSkinUrl?.split("/")?.last()
                 if (senderTextureId == null) senderTextureId = "UNDEFINED"
 
-                //# placeholders: mcid, uuid, uuidNoDashes, textureId
                 authorIconUrl = PlaceholderFormatter.format(
                     authorIconUrl,
                     mapOf(
@@ -75,7 +75,22 @@ class ChatEventListener(
                         "textureId" to senderTextureId
                     )
                 )
-                logger.info(authorIconUrl)
+
+                val webhook = WebhookWrapper(webhookUrl, plugin)
+                val wEmbed = EmbedBuilder()
+                    .setColor(0xff0000)
+                    .setTitle("Title")
+                    .setFooter("Hello!")
+                    .build()
+                val wAllowedMentions = AllowedMentions()
+                val webhookMessage = Message(
+                    username = sender.username,
+                    avatarURL = authorIconUrl,
+                    content = message,
+                    embeds = arrayOf(wEmbed),
+                    allowedMentions = wAllowedMentions
+                )
+                webhook.send(webhookMessage)
 
             }
         }

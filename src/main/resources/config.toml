@@ -27,7 +27,7 @@ enabled = true
 [discord.message-share.webhook]
 enabled = true
 webhook-url = "https://discord.com/api/webhooks/1364032685311393822/9aq4-tTr2L6VAiCynGPLCuqG05hmhVJc3fORzY8X8usVZ1WnzZeSm0R40fvplbSSdogX"
-author-icon-url = "{mcid} {uuid} {uuidNoDashes} {textureId}"
+author-icon-url = "https://mc-heads.net/combo/{uuid}"
 # placeholders: mcid, uuid, uuidNoDashes, textureId
 [discord.message-share.to-discord.formats]
 sender = "{senderName}" # disable if `use-webhook` is false
