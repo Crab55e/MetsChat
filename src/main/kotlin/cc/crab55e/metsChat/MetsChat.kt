@@ -7,6 +7,7 @@ import cc.crab55e.metsChat.event.PlayerJoin
 import cc.crab55e.metsChat.event.PlayerLeave
 import cc.crab55e.metsChat.util.ColorCodeToColor
 import cc.crab55e.metsChat.util.ConfigManager
+import cc.crab55e.metsChat.util.MessageConfigManager
 
 import com.google.inject.Inject
 import com.velocitypowered.api.command.CommandManager
@@ -37,6 +38,7 @@ class MetsChat @Inject constructor(
 ) {
     private var discordClient: JDA? = null
     private val configManager = ConfigManager(this, dataDirectory)
+    private val messageConfigManager = MessageConfigManager(this, dataDirectory)
 
     fun getLogger(): Logger {
         return logger
@@ -49,6 +51,11 @@ class MetsChat @Inject constructor(
     fun getConfigManager(): ConfigManager {
         return configManager
     }
+
+    fun getMessageConfigManager(): MessageConfigManager {
+        return messageConfigManager
+    }
+
     fun getDiscordClient(): JDA? {
         discordClient?.awaitReady()
         return discordClient
