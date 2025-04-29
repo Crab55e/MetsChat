@@ -1,27 +1,31 @@
 package cc.crab55e.metsChat.command
 
 import cc.crab55e.metsChat.MetsChat
-import com.mojang.brigadier.arguments.StringArgumentType
+import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.velocitypowered.api.command.BrigadierCommand
+import com.velocitypowered.api.command.CommandSource
 
-object BaseBrigadierCommand {
-    fun createBrigadierCommand(plugin: MetsChat): BrigadierCommand {
+object MetsChatCommand {
+    fun create(plugin: MetsChat): BrigadierCommand {
         val baseCommand = BaseCommand(plugin)
         val reloadCommand = ReloadCommand(plugin)
+        val jdaCommand = JDACommand(plugin)
 
-        val mainNode = BrigadierCommand.literalArgumentBuilder("metschat")
-            .requires { source -> source.hasPermission("metschat.command.metschat") }
+        val root = LiteralArgumentBuilder.literal<CommandSource>("metschat")
+            .requires { it.hasPermission("metschat.command.base") }
             .executes { baseCommand.handleBase(it) }
-            .then(
-                BrigadierCommand.requiredArgumentBuilder("argument", StringArgumentType.word())
-                    .suggests { _, builder ->
-                        builder.suggest("reload")
-                        builder.buildFuture()
-                    }
-                    .executes { reloadCommand.handleReload(it) }
+            .then(LiteralArgumentBuilder.literal<CommandSource>("reload")
+                .requires { it.hasPermission("metschat.command.reload") }
+                .executes { reloadCommand.handleReload(it) })
+            .then(LiteralArgumentBuilder.literal<CommandSource>("jda")
+                .requires { it.hasPermission("metschat.command.jda") }
+                .executes { jdaCommand.handleJDA(it) }
+                .then(LiteralArgumentBuilder.literal<CommandSource>("reconnect")
+                    .requires {it.hasPermission("metschat.command.jda.reconnect")}
+                    .executes {jdaCommand.handleReconnect(it)}
+                )
             )
-            .build()
 
-        return BrigadierCommand(mainNode)
+        return BrigadierCommand(root.build())
     }
 }

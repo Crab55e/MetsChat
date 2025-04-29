@@ -1,9 +1,10 @@
 package cc.crab55e.metsChat
 
-import cc.crab55e.metsChat.command.BaseBrigadierCommand
+import cc.crab55e.metsChat.command.MetsChatCommand
 import cc.crab55e.metsChat.discord.MessageReceived
 import cc.crab55e.metsChat.event.ChatEventListener
 import cc.crab55e.metsChat.event.PlayerJoin
+import cc.crab55e.metsChat.event.PlayerLeave
 import cc.crab55e.metsChat.util.ColorCodeToColor
 
 import com.google.inject.Inject
@@ -21,7 +22,6 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.requests.GatewayIntent
 
 import org.slf4j.Logger
-import java.awt.Color
 import java.nio.file.Path
 
 
@@ -109,6 +109,7 @@ class MetsChat @Inject constructor(
         val eventManager = server.eventManager
         eventManager.register(this, ChatEventListener(this))
         eventManager.register(this, PlayerJoin(this))
+        eventManager.register(this, PlayerLeave(this))
 
         val commandManager = server.commandManager
         val commandMeta = commandManager.metaBuilder("metschat")
@@ -116,7 +117,7 @@ class MetsChat @Inject constructor(
             .plugin(this)
             .build()
 
-        commandManager.register(commandMeta, BaseBrigadierCommand.createBrigadierCommand(this))
+        commandManager.register(commandMeta, MetsChatCommand.create(this))
 
         logger.info("Initialized.")
     }
@@ -127,9 +128,11 @@ class MetsChat @Inject constructor(
         val config = configManager.getConfig()
         val channelIdsTable = config.getTable("discord.channel-ids")
         val bootMessageChannelId = channelIdsTable.getString("boot-message")
-
-        discordClient?.awaitReady()
-        val bootMessageChannel = discordClient?.getChannelById(TextChannel::class.java, bootMessageChannelId)
+        // FIXME: なぜかほぼ確で送られてこん
+        discordClient!!.awaitReady()
+        logger.info("JDA STATS: ${discordClient!!.status}")
+        logger.info("JDA: $discordClient")
+        val bootMessageChannel = discordClient!!.getChannelById(TextChannel::class.java, bootMessageChannelId)
 
         if (bootMessageChannel != null) {
             val bootMessagesTable = config.getTable("discord.message-share.to-discord.boot-message")
@@ -137,6 +140,7 @@ class MetsChat @Inject constructor(
                 .setColor(ColorCodeToColor(bootMessagesTable.getString("shutdown-color")).color)
                 .setTitle(bootMessagesTable.getString("shutdown"))
                 .build()
+            logger.info(embed.toString())
 
             bootMessageChannel.sendMessageEmbeds(embed).queue()
         }
