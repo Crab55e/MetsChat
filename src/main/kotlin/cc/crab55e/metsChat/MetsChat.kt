@@ -6,6 +6,7 @@ import cc.crab55e.metsChat.event.ChatEventListener
 import cc.crab55e.metsChat.event.PlayerJoin
 import cc.crab55e.metsChat.event.PlayerLeave
 import cc.crab55e.metsChat.util.ColorCodeToColor
+import cc.crab55e.metsChat.util.ConfigManager
 
 import com.google.inject.Inject
 import com.velocitypowered.api.command.CommandManager

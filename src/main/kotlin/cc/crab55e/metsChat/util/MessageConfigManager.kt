@@ -1,25 +1,26 @@
-package cc.crab55e.metsChat
+package cc.crab55e.metsChat.util
 
+import cc.crab55e.metsChat.MetsChat
 import com.moandjiezana.toml.Toml
 import java.io.File
 import java.nio.file.Path
 
-class ConfigManager(
+class MessageConfigManager(
     private val plugin: MetsChat,
     private val dataDirectory: Path
 ) {
     private lateinit var config: Toml
-    private var configFileName = "config.toml"
+    private var messageConfigFileName = "messages.toml"
     init {
         reloadConfig()
     }
-    fun getConfigFileName(): String { return this.configFileName }
+    fun getMessageFileName(): String { return this.messageConfigFileName }
     fun reloadConfig() {
-        val configFile: File = dataDirectory.resolve(configFileName).toFile()
+        val configFile: File = dataDirectory.resolve(messageConfigFileName).toFile()
         if (!configFile.exists()) {
             configFile.parentFile.mkdirs()
-            val resourceStream = plugin::class.java.classLoader.getResourceAsStream(configFileName)
-                ?: throw RuntimeException("$configFileName is not found!!!")
+            val resourceStream = plugin::class.java.classLoader.getResourceAsStream(messageConfigFileName)
+                ?: throw RuntimeException("$messageConfigFileName is not found!!!")
 
             resourceStream.use { input ->
                 configFile.outputStream().use { output ->
@@ -29,7 +30,7 @@ class ConfigManager(
         }
         this.config = Toml().read(configFile)
     }
-    fun getConfig(): Toml {
+    fun getMessageConfig(): Toml {
         return this.config
     }
 }
