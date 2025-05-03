@@ -171,7 +171,11 @@ class MetsChat @Inject constructor(
                 val message =
                     MessageCreateBuilder().addEmbeds(embed).setContent(shutdownNotifyMessagesTable.getString("content"))
                         .build()
-                shutdownNotifyChannel.sendMessage(message).complete()
+                try {
+                    shutdownNotifyChannel.sendMessage(message).complete()
+                } catch (e: Exception) {
+                    logger.error("Failed to sent shutdown-notify to discord: $e")
+                }
             } else logger.warn("failed to get the shutdown notify channel")
         } else logger.info("disabled shutdown notify to discord.")
 
