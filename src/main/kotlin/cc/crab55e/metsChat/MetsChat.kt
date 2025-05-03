@@ -112,7 +112,8 @@ class MetsChat @Inject constructor(
                 discordClient!!.getChannelById(TextChannel::class.java, initializeNotifyChannelId)
 
             if (initializeNotifyChannel != null) {
-                val initializeNotifyMessagesTable = config.getTable(initializeNotifyTableId)
+                val messagesConfig = messageConfigManager.get()
+                val initializeNotifyMessagesTable = messagesConfig.getTable(initializeNotifyTableId)
                 val embed = EmbedBuilder()
                     .setTitle(initializeNotifyMessagesTable.getString("title"))
                     .setDescription(initializeNotifyMessagesTable.getString("desc"))
@@ -157,7 +158,8 @@ class MetsChat @Inject constructor(
             val shutdownNotifyChannel = discordClient!!.getChannelById(TextChannel::class.java, shutdownNotifyChannelId)
 
             if (shutdownNotifyChannel != null) {
-                val shutdownNotifyMessagesTable = config.getTable(shutdownNotifyTableId)
+                val messagesConfig = messageConfigManager.get()
+                val shutdownNotifyMessagesTable = messagesConfig.getTable(shutdownNotifyTableId)
                 val embed = EmbedBuilder()
                     .setTitle(shutdownNotifyMessagesTable.getString("title"))
                     .setDescription(shutdownNotifyMessagesTable.getString("desc"))
