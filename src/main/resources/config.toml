@@ -41,7 +41,6 @@ channel-id = ""
 enabled = true
 channel-id = ""
 
-[message-share]
 [message-share.from-discord]
 enabled = true # TODO: マイクラ側に比べてdiscordからの共有これしかないの？なんか機能増やせるでしょ
 channel-id = ""
