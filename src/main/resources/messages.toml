@@ -35,12 +35,12 @@ desc = ""
 # placeholders: playerName, playersCount, maxPlayers
 color = "#ff4444"
 
-[message-share.to-discord.boot-notify] # TODO: ここだけ追えたらビルド動作確認してプッシュしてチェックしてマージするだけだ～！
+[message-share.to-discord.boot-notify]
 [message-share.to-discord.boot-notify.on-initialize]
 title = 'プロキシが起動しました'
-desc = 'Proxy: {proxyVersion} / RAM: {usedRamMB}/{maxRamMB}mb / Discord Latench: {discordLatency}ms'
+desc = 'Proxy: {proxyVersion}\\nRAM: {usedRamMB}/{maxRamMB}mb\\nDiscord Latency: {discordLatency}ms'
 content = ""
-# placeholders: proxyVersion, maxRamMB, usedRamMB, discordLatencyMS
+# placeholders: proxyVersion, maxRamMB, usedRamMB, discordLatency
 color = "#00ff00"
 
 [message-share.to-discord.boot-notify.on-shutdown]
@@ -72,4 +72,4 @@ Latency: {discordLatency}ms"""
 # placeholders: discordClientStatus, discordLatency
 
 [command.jda.reconnect]
-format = "Unavailable feature."
+format = "Unavailable feature." # 実装したかったが無理そう。未来の自分に任せるよ

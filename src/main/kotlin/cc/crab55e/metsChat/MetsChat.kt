@@ -8,6 +8,7 @@ import cc.crab55e.metsChat.event.PlayerLeave
 import cc.crab55e.metsChat.util.ColorCodeToColor
 import cc.crab55e.metsChat.util.ConfigManager
 import cc.crab55e.metsChat.util.MessageConfigManager
+import cc.crab55e.metsChat.util.PlaceholderFormatter
 
 import com.google.inject.Inject
 import com.velocitypowered.api.command.CommandManager
@@ -33,9 +34,7 @@ import java.nio.file.Path
 )
 
 class MetsChat @Inject constructor(
-    private val logger: Logger,
-    private val server: ProxyServer,
-    @DataDirectory private val dataDirectory: Path
+    private val logger: Logger, private val server: ProxyServer, @DataDirectory private val dataDirectory: Path
 ) {
     private var discordClient: JDA? = null
     private val configManager = ConfigManager(this, dataDirectory)
@@ -89,15 +88,13 @@ class MetsChat @Inject constructor(
         }
 
         discordClient = JDABuilder.createDefault(
-            botToken,
-            GatewayIntent.GUILD_MESSAGES,
-            GatewayIntent.MESSAGE_CONTENT,
-            GatewayIntent.GUILD_MEMBERS
+            botToken, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS
         ).addEventListeners(
             MessageReceived(this)
         ).build()
 
         discordClient!!.awaitReady()
+
 
         val config = configManager.get()
         val initializeNotifyTableId = "message-share.to-discord.boot-notify.on-initialize"
@@ -114,28 +111,36 @@ class MetsChat @Inject constructor(
             if (initializeNotifyChannel != null) {
                 val messagesConfig = messageConfigManager.get()
                 val initializeNotifyMessagesTable = messagesConfig.getTable(initializeNotifyTableId)
-                val embed = EmbedBuilder()
-                    .setTitle(initializeNotifyMessagesTable.getString("title"))
-                    .setDescription(initializeNotifyMessagesTable.getString("desc"))
-                    .setColor(ColorCodeToColor(initializeNotifyMessagesTable.getString("color")).color)
-                    .build()
-                val message = MessageCreateBuilder()
-                    .addEmbeds(embed)
-                    .setContent(initializeNotifyMessagesTable.getString("content"))
-                    .build()
+
+                val runtime = Runtime.getRuntime()
+                val mb = 1024 * 1024
+                val placeholders = mapOf(
+                    "proxyVersion" to server.version.version,
+                    "maxRamMB" to (runtime.maxMemory() / mb).toString(),
+                    "usedRamMB" to ((runtime.totalMemory() - runtime.freeMemory()) / mb).toString(),
+                    "discordLatency" to discordClient!!.gatewayPing.toString()
+                )
+
+                val formattedStrings = listOf("title", "desc", "content").associateWith { key ->
+                    PlaceholderFormatter.format(initializeNotifyMessagesTable.getString(key), placeholders)
+                }
+
+                val embed = EmbedBuilder().setTitle(formattedStrings["title"]).setDescription(formattedStrings["desc"])
+                    .setColor(ColorCodeToColor(initializeNotifyMessagesTable.getString("color")).color).build()
+
+                val message = MessageCreateBuilder().addEmbeds(embed).setContent(formattedStrings["content"]).build()
+
                 initializeNotifyChannel.sendMessage(message).queue()
             } else logger.warn("failed to get the initialize notify channel")
         } else logger.info("disabled initialize notify to discord.")
+
         val eventManager = server.eventManager
         eventManager.register(this, ChatEventListener(this))
         eventManager.register(this, PlayerJoin(this))
         eventManager.register(this, PlayerLeave(this))
 
         val commandManager = server.commandManager
-        val commandMeta = commandManager.metaBuilder("metschat")
-            .aliases("mchat")
-            .plugin(this)
-            .build()
+        val commandMeta = commandManager.metaBuilder("metschat").aliases("mchat").plugin(this).build()
 
         commandManager.register(commandMeta, MetsChatCommand.create(this))
 
@@ -160,16 +165,13 @@ class MetsChat @Inject constructor(
             if (shutdownNotifyChannel != null) {
                 val messagesConfig = messageConfigManager.get()
                 val shutdownNotifyMessagesTable = messagesConfig.getTable(shutdownNotifyTableId)
-                val embed = EmbedBuilder()
-                    .setTitle(shutdownNotifyMessagesTable.getString("title"))
+                val embed = EmbedBuilder().setTitle(shutdownNotifyMessagesTable.getString("title"))
                     .setDescription(shutdownNotifyMessagesTable.getString("desc"))
-                    .setColor(ColorCodeToColor(shutdownNotifyMessagesTable.getString("color")).color)
-                    .build()
-                val message = MessageCreateBuilder()
-                    .addEmbeds(embed)
-                    .setContent(shutdownNotifyMessagesTable.getString("content"))
-                    .build()
-                shutdownNotifyChannel.sendMessage(message).queue()
+                    .setColor(ColorCodeToColor(shutdownNotifyMessagesTable.getString("color")).color).build()
+                val message =
+                    MessageCreateBuilder().addEmbeds(embed).setContent(shutdownNotifyMessagesTable.getString("content"))
+                        .build()
+                shutdownNotifyChannel.sendMessage(message).complete()
             } else logger.warn("failed to get the shutdown notify channel")
         } else logger.info("disabled shutdown notify to discord.")
 

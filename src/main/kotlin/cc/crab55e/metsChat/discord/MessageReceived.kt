@@ -14,6 +14,9 @@ class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
     private val logger = plugin.getLogger()
     private val mm = MiniMessage.miniMessage()
     override fun onMessageReceived(event: MessageReceivedEvent) {
+        if (event.author.isBot) return
+        // 自身のwebhook or jda.selfUserだったらreturn的な条件でもよかったかもしれない
+
         val config = plugin.getConfigManager().get()
         val messagesConfig = plugin.getMessageConfigManager().get()
 

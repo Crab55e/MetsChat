@@ -21,7 +21,7 @@ class PlayerLeave(
         val joinLeavesLeaveTableKey = "message-share.to-discord.join-leaves.leave"
         val joinLeavesLeaveTable = config.getTable(joinLeavesLeaveTableKey)
 
-        if (!joinLeavesLeaveTable.getBoolean("enable")) return
+        if (!joinLeavesLeaveTable.getBoolean("enabled")) return
 
         val discordClient = plugin.getDiscordClient()
         discordClient!!.awaitReady()

@@ -21,7 +21,7 @@ class PlayerJoin(
         val joinLeavesJoinTableKey = "message-share.to-discord.join-leaves.join"
         val joinLeavesJoinTable = config.getTable(joinLeavesJoinTableKey)
 
-        if (!joinLeavesJoinTable.getBoolean("enable")) return
+        if (!joinLeavesJoinTable.getBoolean("enabled")) return
 
         val discordClient = plugin.getDiscordClient()
         discordClient!!.awaitReady()
