@@ -1,41 +1,47 @@
 [general]
-plugin-message-prefix = "<green>[MetsChat]</green> "
 
-[minecraft]
-[minecraft.cross-server-message-share]
-enabled = true
-format = "<hover:show_text:'from {senderServer}'>\\<<yellow>*</yellow>{senderName}></hover> {message}"
-# placeholders: senderServer, senderName, message
+[discord.general]
+default-channel-id = "1362971564836130838"
 
-[discord]
 [discord.bot-token]
 type = "system-environ" # "system-environ" or "raw-string"
 value = "DiscordSRVBotToken"
 
-[discord.channel-ids]
-central-chat = "1362971564836130838"
-boot-message = "1362971564836130838"
-player-join-leave = "1362971564836130838"
+[discord.webhook-url]
+type = "raw-string"
+value = "https://discord.com/api/webhooks/1364032685311393822/9aq4-tTr2L6VAiCynGPLCuqG05hmhVJc3fORzY8X8usVZ1WnzZeSm0R40fvplbSSdogX"
 
-[discord.message-share.to-minecraft]
+[message-share]
+[message-share.in-servers]
+[message-share.in-servers.player-chat]
 enabled = true
-format = "[<click:open_url:'{discordMessageUrl}'><hover:show_text:'Discordで開く'><blue>Discord</blue></hover></click> | <hover:show_text:'{allRoleNames}'><color:#{roleColorHex}>{authorName}</color></hover>] {message}"
-# placeholders: authorName, message, roleColorHex, allRoleNames, discordMessageUrl,
-parse-markdown = true
 
-[discord.message-share.to-discord]
+[message-share.to-discord.player-chat]
 enabled = true
-[discord.message-share.to-discord.boot-message]
-initialize = 'プロキシが起動しました'
-initialize-color = "#22ff22"
-shutdown = 'プロキシが停止しました'
-shutdown-color = "#ff2222"
-[discord.message-share.webhook]
+channel-id = ""
+
+[message-share.to-discord.player-chat.webhook]
 enabled = true
-webhook-url = "https://discord.com/api/webhooks/1364032685311393822/9aq4-tTr2L6VAiCynGPLCuqG05hmhVJc3fORzY8X8usVZ1WnzZeSm0R40fvplbSSdogX"
-author-icon-url = "https://mc-heads.net/combo/{uuid}"
-# placeholders: mcid, uuid, uuidNoDashes, textureId
-[discord.message-share.to-discord.formats]
-username = "{serverName} / {senderName}" # disable if `use-webhook` is false
-content = "{message}"
-# placeholders: senderName, message, serverName,
+
+[message-share.to-discord.join-leaves]
+[message-share.to-discord.join-leaves.join]
+enabled = true
+channel-id = ""
+
+[message-share.to-discord.join-leaves.leave]
+enabled = true
+channel-id = ""
+
+[message-share.to-discord.boot-notify]
+[message-share.to-discord.boot-notify.on-initialize]
+enabled = true
+channel-id = ""
+
+[message-share.to-discord.boot-notify.on-shutdown]
+enabled = true
+channel-id = ""
+
+[message-share.from-discord]
+enabled = true # TODO: マイクラ側に比べてdiscordからの共有これしかないの？なんか機能増やせるでしょ
+channel-id = ""
+included-channel-ids = []
