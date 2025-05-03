@@ -38,7 +38,7 @@ color = "#ff4444"
 [message-share.to-discord.boot-notify]
 [message-share.to-discord.boot-notify.on-initialize]
 title = 'プロキシが起動しました'
-desc = 'Proxy: {proxyVersion}\\nRAM: {usedRamMB}/{maxRamMB}mb\\nDiscord Latency: {discordLatency}ms'
+desc = "Proxy: {proxyVersion}\nRAM: {usedRamMB}/{maxRamMB}MB\nDiscord Latency: {discordLatency}ms"
 content = ""
 # placeholders: proxyVersion, maxRamMB, usedRamMB, discordLatency
 color = "#00ff00"
