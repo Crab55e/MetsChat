@@ -72,7 +72,7 @@ class MetsChat @Inject constructor(
 
     @Subscribe
     fun onProxyInitialization(event: ProxyInitializeEvent) {
-        logger.info("Initializing")
+        logger.info("Initializing...")
 
         val botToken: String
         val discordBotTokenTable = getConfigManager().get().getTable("discord.bot-token")
@@ -123,9 +123,9 @@ class MetsChat @Inject constructor(
                     .addEmbeds(embed)
                     .setContent(initializeNotifyMessagesTable.getString("content"))
                     .build()
-                initializeNotifyChannel.sendMessage(message)
-            }
-        }
+                initializeNotifyChannel.sendMessage(message).queue()
+            } else logger.warn("failed to get the initialize notify channel")
+        } else logger.info("disabled initialize notify to discord.")
         val eventManager = server.eventManager
         eventManager.register(this, ChatEventListener(this))
         eventManager.register(this, PlayerJoin(this))
@@ -169,11 +169,12 @@ class MetsChat @Inject constructor(
                     .addEmbeds(embed)
                     .setContent(shutdownNotifyMessagesTable.getString("content"))
                     .build()
-                shutdownNotifyChannel.sendMessage(message)
-            }
-        }
+                shutdownNotifyChannel.sendMessage(message).queue()
+            } else logger.warn("failed to get the shutdown notify channel")
+        } else logger.info("disabled shutdown notify to discord.")
 
         discordClient?.shutdown()
+        logger.info("Disabled.")
 
     }
 }
