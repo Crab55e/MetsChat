@@ -1,0 +1,75 @@
+[general]
+plugin-message-prefix = "<green>[MetsChat]</green> "
+
+[discord.general]
+default-player-icon-url = "https://mc-heads.net/combo/{uuid}"
+# placeholders: mcid, uuid, uuidNoDashes, textureId
+
+[message-share]
+[message-share.in-servers]
+[message-share.in-servers.player-chat]
+format = "<hover:show_text:'from {senderServer}'>\\<<yellow>*</yellow>{senderName}></hover> {message}"
+# placeholders: senderServer, senderName, message
+
+[message-share.to-discord.player-chat]
+content = "{message}"
+# placeholders: senderName, message, serverName
+[message-share.to-discord.player-chat.webhook]
+author-icon-url = ""
+# placeholders: mcid, uuid, uuidNoDashes, textureId
+username = "{serverName} / {senderName}"
+# placeholders: senderName, message, serverName
+
+[message-share.to-discord.join-leaves]
+[message-share.to-discord.join-leaves.join]
+author-icon-url = ""
+author-name = "{playerName} がサーバーに参加しました"
+desc = ""
+# placeholders: playerName, playersCount, maxPlayers
+color = "#44ff44"
+
+[message-share.to-discord.join-leaves.leave]
+author-icon-url = ""
+author-name = "{playerName} がサーバーから退出しました"
+desc = ""
+# placeholders: playerName, playersCount, maxPlayers
+color = "#ff4444"
+
+[message-share.to-discord.boot-notify] # TODO: ここだけ追えたらビルド動作確認してプッシュしてチェックしてマージするだけだ～！
+[message-share.to-discord.boot-notify.on-initialize]
+title = 'プロキシが起動しました'
+desc = 'Proxy: {proxyVersion} / RAM: {usedRamMB}/{maxRamMB}mb / Discord Latench: {discordLatency}ms'
+content = ""
+# placeholders: proxyVersion, maxRamMB, usedRamMB, discordLatencyMS
+color = "#00ff00"
+
+[message-share.to-discord.boot-notify.on-shutdown]
+title = 'プロキシが停止しました'
+desc = '異常終了と思われる場合、管理者に連絡してください'
+content = "<@776726560929480707>" # mention of crab55e
+color = "#ff0000"
+
+[message-share.from-discord]
+format = "[<click:open_url:'{discordMessageUrl}'><hover:show_text:'Discordで開く'><blue>Discord</blue></hover></click> | <hover:show_text:'{allRoleNames}'><color:#{roleColorHex}>{authorName}</color></hover>] {message}"
+# placeholders: authorName, message, roleColorHex, allRoleNames, discordMessageUrl
+parse-markdown = true
+all-role-names-separator = ", "
+
+[command]
+[command.base]
+format = "Running {pluginVersion}"
+# placeholders: pluginVersion
+
+[command.reload]
+format = "Reloaded configurations"
+# placeholdders: configFileNames
+
+[command.jda]
+format = """
+MetsChat / JDA
+Status: {discordClientStatus},
+Latency: {discordLatency}ms"""
+# placeholders: discordClientStatus, discordLatency
+
+[command.jda.reconnect]
+format = "Unavailable feature."

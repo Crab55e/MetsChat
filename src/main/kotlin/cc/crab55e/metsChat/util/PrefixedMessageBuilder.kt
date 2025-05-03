@@ -7,12 +7,9 @@ import net.kyori.adventure.text.minimessage.MiniMessage
 class PrefixedMessageBuilder {
     fun make(plugin: MetsChat, message: String): Component {
         val mm = MiniMessage.miniMessage()
-        val config = plugin.getConfigManager().getConfig()
+        val config = plugin.getMessageConfigManager().get()
         val generalTable = config.getTable("general")
-        val prefix = generalTable.getString(
-            "plugin-message-prefix",
-            "<green>[MetsChat]</green> "
-        )
+        val prefix = generalTable.getString("plugin-message-prefix")
         val result = mm.deserialize(prefix + message)
         return result
     }

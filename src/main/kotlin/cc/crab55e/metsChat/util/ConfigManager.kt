@@ -12,10 +12,10 @@ class ConfigManager(
     private lateinit var config: Toml
     private var configFileName = "config.toml"
     init {
-        reloadConfig()
+        reload()
     }
-    fun getConfigFileName(): String { return this.configFileName }
-    fun reloadConfig() {
+    fun getFileName(): String { return this.configFileName }
+    fun reload() {
         val configFile: File = dataDirectory.resolve(configFileName).toFile()
         if (!configFile.exists()) {
             configFile.parentFile.mkdirs()
@@ -30,7 +30,7 @@ class ConfigManager(
         }
         this.config = Toml().read(configFile)
     }
-    fun getConfig(): Toml {
+    fun get(): Toml {
         return this.config
     }
 }

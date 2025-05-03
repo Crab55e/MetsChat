@@ -1,6 +1,8 @@
 package cc.crab55e.metsChat.command
 
+import cc.crab55e.metsChat.BuildConstants
 import cc.crab55e.metsChat.MetsChat
+import cc.crab55e.metsChat.util.PlaceholderFormatter
 import cc.crab55e.metsChat.util.PrefixedMessageBuilder
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
@@ -11,21 +13,35 @@ class JDACommand(
 ) {
     private val discordClient = plugin.getDiscordClient()
     fun handleJDA(context: CommandContext<CommandSource?>): Int {
+        val messagesConfig = plugin.getMessageConfigManager().get()
+        val messageFormat = messagesConfig.getTable("command.jda").getString("format")
 
         val jdaStatus = discordClient?.status
         val jdaStatusName = jdaStatus?.name ?: "access unavailable to status object."
         val jdaLatency = discordClient?.gatewayPing.toString()
-        val stringMessage = """
-            MetsChat / JDA
-            Status: $jdaStatusName,
-            Latency: $jdaLatency
-        """.trimIndent()
-        val message = PrefixedMessageBuilder().make(plugin, stringMessage)
+
+        val message = PrefixedMessageBuilder().make(
+            plugin,
+            PlaceholderFormatter.format(
+                messageFormat,
+                mapOf(
+                    "discordClientStatus" to jdaStatusName,
+                    "discordLatency" to jdaLatency
+                )
+            )
+        )
+
         context.source?.sendMessage(message)
         return Command.SINGLE_SUCCESS
     }
+
     fun handleReconnect(context: CommandContext<CommandSource?>): Int {
-        val message = PrefixedMessageBuilder().make(plugin, "Unavailable feature.")
+        val messagesConfig = plugin.getMessageConfigManager().get()
+        val messageFormat = messagesConfig.getTable("command.jda.reconnect").getString("format")
+        val message = PrefixedMessageBuilder().make(
+            plugin,
+            messageFormat
+        )
         context.source?.sendMessage(message)
         return Command.SINGLE_SUCCESS
     }

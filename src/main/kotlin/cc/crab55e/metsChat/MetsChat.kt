@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 
 import org.slf4j.Logger
 import java.nio.file.Path
@@ -74,7 +75,7 @@ class MetsChat @Inject constructor(
         logger.info("Initializing")
 
         val botToken: String
-        val discordBotTokenTable = getConfigManager().getConfig().getTable("discord.bot-token")
+        val discordBotTokenTable = getConfigManager().get().getTable("discord.bot-token")
         val discordBotTokenType = discordBotTokenTable.getString("type")
         val discordBotTokenValue = discordBotTokenTable.getString("value")
         if (discordBotTokenType == "system-environ") {
@@ -82,7 +83,7 @@ class MetsChat @Inject constructor(
         } else if (discordBotTokenType == "raw-string") {
             botToken = discordBotTokenValue
         } else {
-            logger.error("$discordBotTokenType is Invalid bot token type in ${getConfigManager().getConfigFileName()}")
+            logger.error("$discordBotTokenType is invalid type")
             this.server.shutdown()
             return
         }
@@ -98,22 +99,32 @@ class MetsChat @Inject constructor(
 
         discordClient!!.awaitReady()
 
-        val config = configManager.getConfig()
-        val channelIdsTable = config.getTable("discord.channel-ids")
-        val bootMessageChannelId = channelIdsTable.getString("boot-message")
+        val config = configManager.get()
+        val initializeNotifyTableId = "message-share.to-discord.boot-notify.on-initialize"
+        val initializeNotifyTable = config.getTable(initializeNotifyTableId)
 
-        val bootMessageChannel = discordClient!!.getChannelById(TextChannel::class.java, bootMessageChannelId)
+        if (initializeNotifyTable.getBoolean("enabled")) {
+            val defaultChannelId = config.getTable("discord.general").getString("default-channel-id")
+            var initializeNotifyChannelId = initializeNotifyTable.getString("channel-id")
+            if (initializeNotifyChannelId == "") initializeNotifyChannelId = defaultChannelId
 
-        if (bootMessageChannel != null) {
-            val bootMessagesTable = config.getTable("discord.message-share.to-discord.boot-message")
-            val embed = EmbedBuilder()
-                .setColor(ColorCodeToColor(bootMessagesTable.getString("initialize-color")).color)
-                .setTitle(bootMessagesTable.getString("initialize")) // FIXME: なぜかここら辺一体呼び出されない。
-                .build()
+            val initializeNotifyChannel =
+                discordClient!!.getChannelById(TextChannel::class.java, initializeNotifyChannelId)
 
-            bootMessageChannel.sendMessageEmbeds(embed).queue()
+            if (initializeNotifyChannel != null) {
+                val initializeNotifyMessagesTable = config.getTable(initializeNotifyTableId)
+                val embed = EmbedBuilder()
+                    .setTitle(initializeNotifyMessagesTable.getString("title"))
+                    .setDescription(initializeNotifyMessagesTable.getString("desc"))
+                    .setColor(ColorCodeToColor(initializeNotifyMessagesTable.getString("color")).color)
+                    .build()
+                val message = MessageCreateBuilder()
+                    .addEmbeds(embed)
+                    .setContent(initializeNotifyMessagesTable.getString("content"))
+                    .build()
+                initializeNotifyChannel.sendMessage(message)
+            }
         }
-
         val eventManager = server.eventManager
         eventManager.register(this, ChatEventListener(this))
         eventManager.register(this, PlayerJoin(this))
@@ -133,24 +144,31 @@ class MetsChat @Inject constructor(
     @Subscribe
     fun onProxyShutdown(event: ProxyShutdownEvent) {
         logger.info("Disabling...")
-        val config = configManager.getConfig()
-        val channelIdsTable = config.getTable("discord.channel-ids")
-        val bootMessageChannelId = channelIdsTable.getString("boot-message")
-        // FIXME: なぜかほぼ確で送られてこん
-        discordClient!!.awaitReady()
-        logger.info("JDA STATS: ${discordClient!!.status}")
-        logger.info("JDA: $discordClient")
-        val bootMessageChannel = discordClient!!.getChannelById(TextChannel::class.java, bootMessageChannelId)
+        val config = configManager.get()
+        val shutdownNotifyTableId = "message-share.to-discord.boot-notify.on-shutdown"
+        val shutdownNotifyTable = config.getTable(shutdownNotifyTableId)
 
-        if (bootMessageChannel != null) {
-            val bootMessagesTable = config.getTable("discord.message-share.to-discord.boot-message")
-            val embed = EmbedBuilder()
-                .setColor(ColorCodeToColor(bootMessagesTable.getString("shutdown-color")).color)
-                .setTitle(bootMessagesTable.getString("shutdown"))
-                .build()
-            logger.info(embed.toString())
+        if (shutdownNotifyTable.getBoolean("enabled")) {
 
-            bootMessageChannel.sendMessageEmbeds(embed).queue()
+            val defaultChannelId = config.getTable("discord.general").getString("default-channel-id")
+            var shutdownNotifyChannelId = shutdownNotifyTable.getString("channel-id")
+            if (shutdownNotifyChannelId == "") shutdownNotifyChannelId = defaultChannelId
+
+            val shutdownNotifyChannel = discordClient!!.getChannelById(TextChannel::class.java, shutdownNotifyChannelId)
+
+            if (shutdownNotifyChannel != null) {
+                val shutdownNotifyMessagesTable = config.getTable(shutdownNotifyTableId)
+                val embed = EmbedBuilder()
+                    .setTitle(shutdownNotifyMessagesTable.getString("title"))
+                    .setDescription(shutdownNotifyMessagesTable.getString("desc"))
+                    .setColor(ColorCodeToColor(shutdownNotifyMessagesTable.getString("color")).color)
+                    .build()
+                val message = MessageCreateBuilder()
+                    .addEmbeds(embed)
+                    .setContent(shutdownNotifyMessagesTable.getString("content"))
+                    .build()
+                shutdownNotifyChannel.sendMessage(message)
+            }
         }
 
         discordClient?.shutdown()

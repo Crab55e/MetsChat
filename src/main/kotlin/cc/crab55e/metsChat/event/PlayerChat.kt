@@ -2,13 +2,9 @@ package cc.crab55e.metsChat.event
 
 import cc.crab55e.metsChat.MetsChat
 import cc.crab55e.metsChat.util.*
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.player.PlayerChatEvent
-import net.dv8tion.jda.api.EmbedBuilder
 import net.kyori.adventure.text.minimessage.MiniMessage
-import java.util.Base64
 
 class ChatEventListener(
     private val plugin: MetsChat
@@ -17,21 +13,17 @@ class ChatEventListener(
     private val logger = plugin.getLogger()
     private val mm = MiniMessage.miniMessage()
 
-    // TODO: configにwebhook: boolなりを追加して、webhookに対応しつつmc->discordなチャット連携を実装したい
     @Subscribe
     fun onPlayerChat(event: PlayerChatEvent) {
+        val config = plugin.getConfigManager().get()
+        val messagesConfig = plugin.getMessageConfigManager().get()
+        val senderServerName = event.player.currentServer.get().serverInfo.name
 
-        val config = plugin.getConfigManager().getConfig()
+        val inServerTableKey = "message-share.in-servers.player-chat"
+        val enabledInServersMessageShare = config.getTable(inServerTableKey).getBoolean("enabled")
+        if (enabledInServersMessageShare) {
 
-        val crossServerMessageShareTable = config.getTable("minecraft.cross-server-message-share")
-        val toDiscordTable = config.getTable("discord.message-share.to-discord")
-        val sender = event.player
-        val message = event.message
-        val senderServerName = sender.currentServer.get().serverInfo.name
-
-        val enabledCrossServerMessageShare = crossServerMessageShareTable.getBoolean("enabled")
-        if (enabledCrossServerMessageShare) {
-            val crossServerMessageFormat = crossServerMessageShareTable.getString("format")
+            val inServerMessageShareFormat = messagesConfig.getTable(inServerTableKey).getString("format")
             server.allPlayers.forEach playerLoop@{
                 val receiver = it
                 val receiverServerName = receiver.currentServer.get().serverInfo.name
@@ -39,61 +31,71 @@ class ChatEventListener(
 
                 val deliveringMessage = mm.deserialize(
                     PlaceholderFormatter.format(
-                        crossServerMessageFormat,
+                        inServerMessageShareFormat,
                         mapOf(
                             "senderServer" to senderServerName,
-                            "senderName" to sender.username,
-                            "message" to message
+                            "senderName" to event.player.username,
+                            "message" to event.message
                         )
                     )
                 )
                 receiver.sendMessage(deliveringMessage)
             }
         }
-        if (toDiscordTable.getBoolean("enabled")) {
-            val webhookTable = config.getTable("discord.message-share.webhook")
-            val webhookFormatsTable = config.getTable("discord.message-share.to-discord.formats")
-            if (webhookTable.getBoolean("enabled")) {
-                val webhookUrl = webhookTable.getString("webhook-url")
-                var authorIconUrl = webhookTable.getString("author-icon-url")
 
-                val senderProfilePropertiesJson = Base64.getDecoder().decode(sender.gameProfileProperties[0].value).toString(Charsets.UTF_8)
-                val mapType = object : TypeToken<Map<String, Any>>() {}.type
-                val senderProfileMap: Map<String, Any> = Gson().fromJson(senderProfilePropertiesJson, mapType)
-                val senderProfileMapTextures = senderProfileMap["textures"] as? Map<*, *>
-                val senderProfileMapSkin = senderProfileMapTextures?.get("SKIN") as? Map<*, *>
-                val senderSkinUrl = senderProfileMapSkin?.get("url") as? String
-                // original: http://textures.minecraft.net/texture/bb20ec924eb2f949a6198f23ec4e38bcaf570d5f3b8f8003e7dcd28863007654
-                var senderTextureId = senderSkinUrl?.split("/")?.last()
-                if (senderTextureId == null) senderTextureId = "UNDEFINED"
+        val toDiscordTableKey = "message-share.to-discord.player-chat"
+        val toDiscordTable = config.getTable(toDiscordTableKey)
+        if (config.getTable(toDiscordTableKey).getBoolean("enabled")) {
+            val content = PlaceholderFormatter.format(
+                messagesConfig.getTable(toDiscordTableKey).getString("content"),
+                mapOf(
+                    "senderName" to event.player.username,
+                    "message" to event.message,
+                    "serverName" to senderServerName
+                )
+            )
 
-                authorIconUrl = PlaceholderFormatter.format(
-                    authorIconUrl,
+            val toDiscordWebhookTableKey = "message-share.to-discord.player-chat.webhook"
+            if (config.getTable(toDiscordWebhookTableKey).getBoolean("enabled")) {
+                val toDiscordWebhookMessagesTable = messagesConfig.getTable(toDiscordWebhookTableKey)
+
+                val senderTextureId = PlayerSkinTextureIdResolver(event.player).textureId
+
+                val defaultPlayerIconUrl = messagesConfig.getTable("discord.general").getString("default-player-icon-url")
+                var authorIconUrlFormat = toDiscordWebhookMessagesTable.getString("author-icon-url")
+                if (authorIconUrlFormat == "") authorIconUrlFormat = defaultPlayerIconUrl
+
+                val authorIconUrl = PlaceholderFormatter.format(
+                    authorIconUrlFormat,
                     mapOf(
-                        "mcid" to sender.username,
-                        "uuid" to sender.gameProfile.id.toString(),
-                        "uuidNoDashes" to sender.gameProfile.undashedId,
+                        "mcid" to event.player.username,
+                        "uuid" to event.player.gameProfile.id.toString(),
+                        "uuidNoDashes" to event.player.gameProfile.undashedId,
                         "textureId" to senderTextureId
                     )
                 )
 
                 val username = PlaceholderFormatter.format(
-                    webhookFormatsTable.getString("username"),
+                    toDiscordWebhookMessagesTable.getString("username"),
                     mapOf(
-                        "senderName" to sender.username,
-                        "message" to message,
+                        "senderName" to event.player.username,
+                        "message" to event.message,
                         "serverName" to senderServerName
                     )
                 )
-                val content = PlaceholderFormatter.format(
-                    webhookFormatsTable.getString("content"),
-                    mapOf(
-                        "senderName" to sender.username,
-                        "message" to message,
-                        "serverName" to senderServerName
-                    )
-                )
-                // # placeholders: senderName, message, serverName,
+
+                val webhookUrl: String
+                val discordWebhookUrlTable = config.getTable("discord.webhook-url")
+                val discordWebhookUrlType = discordWebhookUrlTable.getString("type")
+                val discordWebhookUrlValue = discordWebhookUrlTable.getString("value")
+                if (discordWebhookUrlType == "system-environ") {
+                    webhookUrl = System.getenv(discordWebhookUrlValue)
+                } else if (discordWebhookUrlType == "raw-string") {
+                    webhookUrl = discordWebhookUrlValue
+                } else {
+                    logger.error("$discordWebhookUrlType is invalid type.")
+                    return
+                }
 
                 val webhook = WebhookWrapper(webhookUrl, plugin)
                 val wAllowedMentions = AllowedMentions()
@@ -105,6 +107,14 @@ class ChatEventListener(
                 )
                 webhook.send(webhookMessage)
 
+            } else {
+                val discordGeneralTable = config.getTable("discord.general")
+                val defaultChannelId = discordGeneralTable.getString("default-channel-id")
+
+                var channelId = toDiscordTable.getString("channel-id")
+                if (channelId == "") channelId = defaultChannelId
+                logger.info("cid $channelId, dcid $defaultChannelId")
+                // TODO: webhookじゃなくてbotから直送りしたいときの処理を書く、今はめんどい
             }
         }
     }

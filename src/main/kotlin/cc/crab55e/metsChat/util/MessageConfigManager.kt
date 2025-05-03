@@ -12,10 +12,10 @@ class MessageConfigManager(
     private lateinit var config: Toml
     private var messageConfigFileName = "messages.toml"
     init {
-        reloadConfig()
+        reload()
     }
-    fun getMessageFileName(): String { return this.messageConfigFileName }
-    fun reloadConfig() {
+    fun getFilename(): String { return this.messageConfigFileName }
+    fun reload() {
         val configFile: File = dataDirectory.resolve(messageConfigFileName).toFile()
         if (!configFile.exists()) {
             configFile.parentFile.mkdirs()
@@ -30,7 +30,7 @@ class MessageConfigManager(
         }
         this.config = Toml().read(configFile)
     }
-    fun getMessageConfig(): Toml {
+    fun get(): Toml {
         return this.config
     }
 }
