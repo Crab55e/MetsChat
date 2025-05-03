@@ -20,15 +20,15 @@ author-icon-url = ""
 username = "{serverName} / {senderName}"
 # placeholders: senderName, message, serverName
 
-[message-share.to-discord.join-leaves]
-[message-share.to-discord.join-leaves.join]
+[message-share.to-discord.connection]
+[message-share.to-discord.connection.join]
 author-icon-url = ""
-author-name = "{playerName} がサーバーに参加しました"
+author-name = "{playerName} が {serverName} に参加しました"
 desc = ""
-# placeholders: playerName, playersCount, maxPlayers
+# placeholders: playerName, serverName, playersCount, maxPlayers
 color = "#66ff66"
 
-[message-share.to-discord.join-leaves.leave]
+[message-share.to-discord.connection.leave]
 author-icon-url = ""
 author-name = "{playerName} がサーバーから退出しました"
 desc = ""

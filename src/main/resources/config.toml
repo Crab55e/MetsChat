@@ -23,12 +23,12 @@ channel-id = ""
 [message-share.to-discord.player-chat.webhook]
 enabled = true
 
-[message-share.to-discord.join-leaves]
-[message-share.to-discord.join-leaves.join]
+[message-share.to-discord.connection]
+[message-share.to-discord.connection.join]
 enabled = true
 channel-id = ""
 
-[message-share.to-discord.join-leaves.leave]
+[message-share.to-discord.connection.leave]
 enabled = true
 channel-id = ""
 
