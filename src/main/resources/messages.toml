@@ -26,14 +26,14 @@ author-icon-url = ""
 author-name = "{playerName} がサーバーに参加しました"
 desc = ""
 # placeholders: playerName, playersCount, maxPlayers
-color = "#44ff44"
+color = "#66ff66"
 
 [message-share.to-discord.join-leaves.leave]
 author-icon-url = ""
 author-name = "{playerName} がサーバーから退出しました"
 desc = ""
 # placeholders: playerName, playersCount, maxPlayers
-color = "#ff4444"
+color = "#ff6666"
 
 [message-share.to-discord.boot-notify]
 [message-share.to-discord.boot-notify.on-initialize]
