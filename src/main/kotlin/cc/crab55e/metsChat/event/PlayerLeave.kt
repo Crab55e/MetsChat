@@ -7,7 +7,6 @@ import cc.crab55e.metsChat.util.PlayerSkinTextureIdResolver
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.connection.DisconnectEvent
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 
 class PlayerLeave(
     private val plugin: MetsChat
@@ -18,24 +17,24 @@ class PlayerLeave(
         val config = plugin.getConfigManager().get()
         val messagesConfig = plugin.getMessageConfigManager().get()
 
-        val joinLeavesLeaveTableKey = "message-share.to-discord.join-leaves.leave"
-        val joinLeavesLeaveTable = config.getTable(joinLeavesLeaveTableKey)
+        val connectionLeaveTableKey = "message-share.to-discord.connection.leave"
+        val connectionLeaveTable = config.getTable(connectionLeaveTableKey)
 
-        if (!joinLeavesLeaveTable.getBoolean("enabled")) return
+        if (!connectionLeaveTable.getBoolean("enabled")) return
 
         val discordClient = plugin.getDiscordClient()
         discordClient!!.awaitReady()
 
         val defaultChannelId = config.getTable("discord.general").getString("default-channel-id")
-        var playerLeaveChannelId = joinLeavesLeaveTable.getString("channel-id")
-        if (playerLeaveChannelId == "") playerLeaveChannelId = defaultChannelId
+        var connectionLeaveChannelId = connectionLeaveTable.getString("channel-id")
+        if (connectionLeaveChannelId == "") connectionLeaveChannelId = defaultChannelId
 
-        val playerLeaveChannel = discordClient.getChannelById(TextChannel::class.java, playerLeaveChannelId)
-        if (playerLeaveChannel != null) {
-            val joinLeavesLeaveMessagesTable = messagesConfig.getTable(joinLeavesLeaveTableKey)
+        val connectionLeaveChannel = discordClient.getTextChannelById(connectionLeaveChannelId)
+        if (connectionLeaveChannel != null) {
+            val connectionLeaveMessagesTable = messagesConfig.getTable(connectionLeaveTableKey)
 
             val defaultPlayerIconUrl = messagesConfig.getTable("discord.general").getString("default-player-icon-url")
-            var authorIconUrlFormat = joinLeavesLeaveMessagesTable.getString("author-icon-url")
+            var authorIconUrlFormat = connectionLeaveMessagesTable.getString("author-icon-url")
             if (authorIconUrlFormat == "") authorIconUrlFormat = defaultPlayerIconUrl
 
             val authorIconUrl = PlaceholderFormatter.format(
@@ -48,7 +47,7 @@ class PlayerLeave(
                 )
             )
 
-            val authorNameFormat = joinLeavesLeaveMessagesTable.getString("author-name")
+            val authorNameFormat = connectionLeaveMessagesTable.getString("author-name")
 
             val server = plugin.getServer()
             val authorName = PlaceholderFormatter.format(
@@ -60,7 +59,7 @@ class PlayerLeave(
                 )
             )
 
-            val embedColor = joinLeavesLeaveMessagesTable.getString("color")
+            val embedColor = connectionLeaveMessagesTable.getString("color")
 
             val embed = EmbedBuilder()
                 .setColor(ColorCodeToColor(embedColor).color)
@@ -70,7 +69,7 @@ class PlayerLeave(
                     authorIconUrl
                 )
                 .build()
-            playerLeaveChannel.sendMessageEmbeds(embed).queue()
+            connectionLeaveChannel.sendMessageEmbeds(embed).queue()
         }
 
     }

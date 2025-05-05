@@ -16,6 +16,10 @@ value = "https://discord.com/api/webhooks/1364032685311393822/9aq4-tTr2L6VAiCynG
 [message-share.in-servers.player-chat]
 enabled = true
 
+[message-share.in-servers.connection]
+[message-share.in-servers.connection.server-change]
+enabled = true
+
 [message-share.to-discord.player-chat]
 enabled = true
 channel-id = ""
@@ -23,12 +27,16 @@ channel-id = ""
 [message-share.to-discord.player-chat.webhook]
 enabled = true
 
-[message-share.to-discord.join-leaves]
-[message-share.to-discord.join-leaves.join]
+[message-share.to-discord.connection]
+[message-share.to-discord.connection.join]
 enabled = true
 channel-id = ""
 
-[message-share.to-discord.join-leaves.leave]
+[message-share.to-discord.connection.leave]
+enabled = true
+channel-id = ""
+
+[message-share.to-discord.connection.server-change]
 enabled = true
 channel-id = ""
 

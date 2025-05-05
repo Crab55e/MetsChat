@@ -5,6 +5,7 @@ import cc.crab55e.metsChat.discord.MessageReceived
 import cc.crab55e.metsChat.event.ChatEventListener
 import cc.crab55e.metsChat.event.PlayerJoin
 import cc.crab55e.metsChat.event.PlayerLeave
+import cc.crab55e.metsChat.event.PlayerServerChange
 import cc.crab55e.metsChat.util.ColorCodeToColor
 import cc.crab55e.metsChat.util.ConfigManager
 import cc.crab55e.metsChat.util.MessageConfigManager
@@ -138,6 +139,7 @@ class MetsChat @Inject constructor(
         eventManager.register(this, ChatEventListener(this))
         eventManager.register(this, PlayerJoin(this))
         eventManager.register(this, PlayerLeave(this))
+        eventManager.register(this, PlayerServerChange(this))
 
         val commandManager = server.commandManager
         val commandMeta = commandManager.metaBuilder("metschat").aliases("mchat").plugin(this).build()
