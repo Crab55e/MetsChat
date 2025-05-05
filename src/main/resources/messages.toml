@@ -11,6 +11,11 @@ default-player-icon-url = "https://mc-heads.net/combo/{uuid}"
 format = "<hover:show_text:'from {senderServer}'>\\<<yellow>*</yellow>{senderName}></hover> {message}"
 # placeholders: senderServer, senderName, message
 
+[message-share.in-servers.connection]
+[message-share.in-servers.connection.server-change]
+format = "<click:run_command:/server {nextServer}><aqua>{playerName}が{previousServer}から{nextServer}へ移動しました</aqua></click>"
+# placeholders: playerName, previousServer, nextServer
+
 [message-share.to-discord.player-chat]
 content = "{message}"
 # placeholders: senderName, message, serverName
