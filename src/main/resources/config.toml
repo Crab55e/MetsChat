@@ -8,8 +8,8 @@ type = "system-environ" # "system-environ" or "raw-string"
 value = "DiscordSRVBotToken"
 
 [discord.webhook-url]
-type = "raw-string"
-value = "https://discord.com/api/webhooks/1364032685311393822/9aq4-tTr2L6VAiCynGPLCuqG05hmhVJc3fORzY8X8usVZ1WnzZeSm0R40fvplbSSdogX"
+type = "system-environ"
+value = "MetsChatWebhookUrl"
 
 [message-share]
 [message-share.in-servers]
