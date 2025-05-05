@@ -7,7 +7,6 @@ import cc.crab55e.metsChat.util.PlayerSkinTextureIdResolver
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.connection.DisconnectEvent
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 
 class PlayerLeave(
     private val plugin: MetsChat
@@ -27,10 +26,10 @@ class PlayerLeave(
         discordClient!!.awaitReady()
 
         val defaultChannelId = config.getTable("discord.general").getString("default-channel-id")
-        var conenctionLeaveChannelId = connectionLeaveTable.getString("channel-id")
-        if (conenctionLeaveChannelId == "") conenctionLeaveChannelId = defaultChannelId
+        var connectionLeaveChannelId = connectionLeaveTable.getString("channel-id")
+        if (connectionLeaveChannelId == "") connectionLeaveChannelId = defaultChannelId
 
-        val connectionLeaveChannel = discordClient.getChannelById(TextChannel::class.java, conenctionLeaveChannelId)
+        val connectionLeaveChannel = discordClient.getTextChannelById(connectionLeaveChannelId)
         if (connectionLeaveChannel != null) {
             val connectionLeaveMessagesTable = messagesConfig.getTable(connectionLeaveTableKey)
 

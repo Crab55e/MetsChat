@@ -35,6 +35,13 @@ desc = ""
 # placeholders: playerName, playersCount, maxPlayers
 color = "#ff6666"
 
+[message-share.to-discord.connection.server-change]
+author-icon-url = ""
+author-name = "{playerName} が {previousServer} から {nextServer} へ移動しました"
+desc = ""
+# placeholders: playerName, previousServer, nextServer
+color = "#6666ff"
+
 [message-share.to-discord.boot-notify]
 [message-share.to-discord.boot-notify.on-initialize]
 title = 'プロキシが起動しました'

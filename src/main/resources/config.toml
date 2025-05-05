@@ -32,6 +32,10 @@ channel-id = ""
 enabled = true
 channel-id = ""
 
+[message-share.to-discord.connection.server-change]
+enabled = true
+channel-id = ""
+
 [message-share.to-discord.boot-notify]
 [message-share.to-discord.boot-notify.on-initialize]
 enabled = true

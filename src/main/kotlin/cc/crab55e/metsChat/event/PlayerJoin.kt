@@ -7,7 +7,6 @@ import cc.crab55e.metsChat.util.PlayerSkinTextureIdResolver
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.player.ServerConnectedEvent
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 
 class PlayerJoin(
     private val plugin: MetsChat
@@ -30,13 +29,12 @@ class PlayerJoin(
 
         val discordClient = plugin.getDiscordClient()
         discordClient!!.awaitReady()
-        val player = event.player
 
         val defaultChannelId = config.getTable("discord.general").getString("default-channel-id")
         var connectionJoinChannelId = connectionJoinTable.getString("channel-id")
         if (connectionJoinChannelId == "") connectionJoinChannelId = defaultChannelId
 
-        val connectionJoinChannel = discordClient.getChannelById(TextChannel::class.java, connectionJoinChannelId)
+        val connectionJoinChannel = discordClient.getTextChannelById(connectionJoinChannelId)
         if (connectionJoinChannel != null) {
             val connectionJoinMessagesTable = messagesConfig.getTable(connectionJoinTableKey)
 
