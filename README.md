@@ -7,12 +7,37 @@
 - Java 17+
 
 ## Features
+- 公開後に記述
 
-### 1. バックエンドサーバー間での、チャットの共有
-プロキシ配下の全バックエンドサーバーにおけるチャットを共有します
-![Chat Share Example Image](https://static.mets-server.com/assets/metschat/readme/chat-share-0.png)
+## Setup
+導入のために必要な最低限のセットアップ手順
 
-### 2. Discord 間のチャットの共有
-Discordとプロキシ配下のバックエンドサーバーにおけるチャットを共有します
-![Discord Example Image](https://static.mets-server.com/assets/metschat/readme/discord-0.png)
-![Discord Example Image](https://static.mets-server.com/assets/metschat/readme/discord-1.png)
+### [`config.toml`](https://github.com/Crab55e/MetsChat/blob/main/src/main/resources/config.toml)
+### 1. discord.bot-token の設定
+導入先のdiscordサーバーにbotを用意します
+```toml
+[discord.bot-token]
+type = "system-environ" # "system-environ" or "raw-string"
+value = "DiscordSRVBotToken"
+```
+標準ではこのように指定されていますが、typeをraw-stringに書き換えることでvalueの値に直にtokenを書き込むことが出来ます  
+用意したbotのtokenを書き込んで、次の手順に移ります
+
+### 2. discord.webhook-url の設定
+導入先のサーバーに、チャット共有用のwebhookを作成します
+```toml
+[discord.webhook-url]
+type = "system-environ"
+value = "MetsChatWebhookUrl"
+```
+標準ではこのように指定されていますが、こちらもtypeとvalueを変更できます  
+用意したwebhookのurlをvalueに書き込みます
+
+### 3. default-channel-id の設定
+minecraftからの各種メッセージ用にチャンネルを作成します
+```toml
+[discord.general]
+default-channel-id = "1362971564836130838"
+```
+標準ではこのように指定されています。`default-channel-id`の値を用意したチャンネルのIDに書き換えます  
+機能ごとに個別に設定することもできるため、必要に応じて[`config.toml`](https://github.com/Crab55e/MetsChat/blob/main/src/main/resources/config.toml)のchannel-idを変更してください
