@@ -93,8 +93,8 @@ class PlayerServerChange(
 
 
                 val embed = EmbedBuilder().setColor(ColorCodeToColor(embedColor).color).setAuthor(
-                        authorName, null, authorIconUrl
-                    ).build()
+                    authorName, null, authorIconUrl
+                ).build()
                 connectionServerChangeChannel.sendMessageEmbeds(embed).queue()
             } else logger.warn("failed to get connection.server-change channel")
         }

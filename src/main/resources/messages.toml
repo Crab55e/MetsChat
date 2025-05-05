@@ -13,7 +13,7 @@ format = "<hover:show_text:'from {senderServer}'>\\<<yellow>*</yellow>{senderNam
 
 [message-share.in-servers.connection]
 [message-share.in-servers.connection.server-change]
-format = "<click:run_command:/server {nextServer}><aqua>{playerName}が{previousServer}から{nextServer}へ移動しました</aqua></click>"
+format = '<click:run_command:/server {nextServer}><hover:show_text:"クリックでついていく"><aqua>{playerName}が{previousServer}から{nextServer}へ移動しました</aqua></hover></click>'
 # placeholders: playerName, previousServer, nextServer
 
 [message-share.to-discord.player-chat]
