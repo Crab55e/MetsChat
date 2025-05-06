@@ -6,8 +6,10 @@ import cc.crab55e.metsChat.util.PlaceholderFormatter
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import okhttp3.internal.toHexString
+import java.util.*
 
 
 class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
@@ -48,13 +50,17 @@ class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
         } else {
             minecraftMessageContent = message.contentDisplay
         }
+
+
+
         var roleColorHex = event.member?.color?.rgb?.toHexString() ?: "ffffffff" // 下2桁は下で消えるのでok
         roleColorHex = roleColorHex.drop(2)
+
         val allRoleNamesSeparator = fromDiscordMessagesTable.getString("all-role-names-separator")
+
         var allRoleNames = ""
         event.member?.roles?.forEach{allRoleNames += it.name + allRoleNamesSeparator}
         allRoleNames = allRoleNames.removeSuffix(allRoleNamesSeparator)
-
 
         val minecraftMessageFormat = fromDiscordMessagesTable.getString("format")
         val minecraftMessage = mm.deserialize( PlaceholderFormatter.format(
