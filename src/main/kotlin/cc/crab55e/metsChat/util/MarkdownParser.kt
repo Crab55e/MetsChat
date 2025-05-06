@@ -42,18 +42,25 @@ class MarkdownParser {
             Regex("^>\\u0020(.*)", RegexOption.MULTILINE) to { match: MatchResult ->
                 "<gray>></gray> ${match.groupValues[1]}"
             },
-            Regex("`/(.+?)`") to {match: MatchResult ->
-                "<click:run_command:'/${match.groupValues[1]}'><hover:show_text:'Run as command.'><shadow:#1f1f1fff><color:#cccccc>/${match.groupValues[1]}</color></shadow></hover></click>"
+            Regex("```([a-zA-Z0-9]+\\n)?(.+)```", setOf( RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL)) to { match: MatchResult ->
+                val lang = match.groupValues[1].ifEmpty { "unset" }
+                val code = match.groupValues[2]
+                "<hover:show_text:'Lang: $lang'><click:copy_to_clipboard:'${code}'><color:#cccccc><shadow:#1f1f1fff>${code}</shadow></color></click></hover>"
             },
-            Regex("`(.+?)`") to {match: MatchResult ->
+            Regex("``(.+?)``") to { match: MatchResult ->
                 "<click:copy_to_clipboard:'${match.groupValues[1]}'><hover:show_text:'Copy'><shadow:#1f1f1fff><color:#cccccc>${match.groupValues[1]}</color></shadow></hover></click>"
+            },
+            Regex("`(.+?)`") to { match: MatchResult ->
+                "<click:copy_to_clipboard:'${match.groupValues[1]}'><hover:show_text:'Copy'><shadow:#1f1f1fff><color:#cccccc>${match.groupValues[1]}</color></shadow></hover></click>"
+            },
+            Regex("`/(.+?)`") to { match: MatchResult ->
+                "<click:run_command:'/${match.groupValues[1]}'><hover:show_text:'Run as command.'><shadow:#1f1f1fff><color:#cccccc>/${match.groupValues[1]}</color></shadow></hover></click>"
             }
         )
 
         @JvmStatic
         fun discordToMiniMessage(input: String): String {
             var parsedInput = input
-            val greaterThanKey = UUID.randomUUID().toString()
             val lessThanKey = UUID.randomUUID().toString()
             parsedInput = parsedInput.replace("<", lessThanKey)
             for ((regex, replacer) in patterns) {
