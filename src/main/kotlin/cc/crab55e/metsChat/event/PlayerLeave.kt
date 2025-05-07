@@ -21,6 +21,7 @@ class PlayerLeave(
         val connectionLeaveTable = config.getTable(connectionLeaveTableKey)
 
         if (!connectionLeaveTable.getBoolean("enabled")) return
+        if (event.loginStatus != DisconnectEvent.LoginStatus.SUCCESSFUL_LOGIN) return
 
         val discordClient = plugin.getDiscordClient()
         discordClient!!.awaitReady()
