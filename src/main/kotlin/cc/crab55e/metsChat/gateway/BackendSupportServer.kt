@@ -15,13 +15,6 @@ class BackendSupportServer(
         thread(name = "TcpServer") {
             val serverSocket = ServerSocket(port)
 
-            val messagesConfig = plugin.getMessageConfigManager().get()
-            val backendSupportServerTableKey = "general.backend-support.server"
-            val backendSupportServerTable = messagesConfig.getTable(backendSupportServerTableKey)
-            val startedMessage = backendSupportServerTable.getString("started")
-
-            logger.info(startedMessage)
-
             while (true) {
                 val socket = serverSocket.accept()
                 thread {

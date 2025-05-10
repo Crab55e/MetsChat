@@ -6,8 +6,7 @@ class BackendMessage(
     private val plugin: MetsChat
 ) {
     private val logger = plugin.getLogger()
-    fun onBackendMessageReceived(message: String): Unit {
+    fun onBackendMessageReceived(message: String) {
         logger.info(message)
-        return Unit
     }
 }

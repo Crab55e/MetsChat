@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
+import okhttp3.internal.format
 
 import org.slf4j.Logger
 import java.nio.file.Path
@@ -36,8 +37,6 @@ import java.nio.file.Path
 class MetsChat @Inject constructor(
     private val logger: Logger, private val server: ProxyServer, @DataDirectory private val dataDirectory: Path
 ) {
-    val pluginMessageChannel: MinecraftChannelIdentifier = MinecraftChannelIdentifier.from("mets:metschat")
-
     private var discordClient: JDA? = null
     private val configManager = ConfigManager(this, dataDirectory)
     private val messageConfigManager = MessageConfigManager(this, dataDirectory)
@@ -136,14 +135,11 @@ class MetsChat @Inject constructor(
             } else logger.warn("failed to get the initialize notify channel")
         } else logger.info("disabled initialize notify to discord.")
 
-        server.channelRegistrar.register(pluginMessageChannel)
-        logger.info("registered channel!")
         val eventManager = server.eventManager
         eventManager.register(this, ChatEventListener(this))
         eventManager.register(this, PlayerJoin(this))
         eventManager.register(this, PlayerLeave(this))
         eventManager.register(this, PlayerServerChange(this))
-        logger.info("registered event!")
 
         val commandManager = server.commandManager
         val commandMeta = commandManager.metaBuilder("metschat").aliases("mchat").plugin(this).build()
@@ -163,6 +159,20 @@ class MetsChat @Inject constructor(
                 BackendMessage(this)
                 )
             backendSupportServer.start()
+
+            val messagesConfig = getMessageConfigManager().get()
+            val backendSupportServerMessagesTable = messagesConfig.getTable(backendSupportServerTableKey)
+            val startedMessageFormat = backendSupportServerMessagesTable.getString("started")
+
+            val startedMessage = PlaceholderFormatter.format(
+                startedMessageFormat,
+                mapOf(
+                    "port" to backendSupportServerPort.toInt().toString()
+                )
+            )
+
+            logger.info(startedMessage)
+
         }
 
         logger.info("Initialized.")
