@@ -2,10 +2,8 @@ package cc.crab55e.metsChat
 
 import cc.crab55e.metsChat.command.MetsChatCommand
 import cc.crab55e.metsChat.discord.MessageReceived
-import cc.crab55e.metsChat.event.ChatEventListener
-import cc.crab55e.metsChat.event.PlayerJoin
-import cc.crab55e.metsChat.event.PlayerLeave
-import cc.crab55e.metsChat.event.PlayerServerChange
+import cc.crab55e.metsChat.event.*
+import cc.crab55e.metsChat.gateway.BackendSupportServer
 import cc.crab55e.metsChat.util.ColorCodeToColor
 import cc.crab55e.metsChat.util.ConfigManager
 import cc.crab55e.metsChat.util.MessageConfigManager
@@ -19,6 +17,7 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent
 import com.velocitypowered.api.plugin.Plugin
 import com.velocitypowered.api.plugin.annotation.DataDirectory
 import com.velocitypowered.api.proxy.ProxyServer
+import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
@@ -37,6 +36,8 @@ import java.nio.file.Path
 class MetsChat @Inject constructor(
     private val logger: Logger, private val server: ProxyServer, @DataDirectory private val dataDirectory: Path
 ) {
+    val pluginMessageChannel: MinecraftChannelIdentifier = MinecraftChannelIdentifier.from("mets:metschat")
+
     private var discordClient: JDA? = null
     private val configManager = ConfigManager(this, dataDirectory)
     private val messageConfigManager = MessageConfigManager(this, dataDirectory)
@@ -135,16 +136,34 @@ class MetsChat @Inject constructor(
             } else logger.warn("failed to get the initialize notify channel")
         } else logger.info("disabled initialize notify to discord.")
 
+        server.channelRegistrar.register(pluginMessageChannel)
+        logger.info("registered channel!")
         val eventManager = server.eventManager
         eventManager.register(this, ChatEventListener(this))
         eventManager.register(this, PlayerJoin(this))
         eventManager.register(this, PlayerLeave(this))
         eventManager.register(this, PlayerServerChange(this))
+        logger.info("registered event!")
 
         val commandManager = server.commandManager
         val commandMeta = commandManager.metaBuilder("metschat").aliases("mchat").plugin(this).build()
 
         commandManager.register(commandMeta, MetsChatCommand.create(this))
+
+        val backendSupportTableKey = "general.backend-support"
+        val backendSupportTable = config.getTable(backendSupportTableKey)
+        if (backendSupportTable.getBoolean("enabled")) {
+            val backendSupportServerTableKey = "general.backend-support.server"
+            val backendSupportServerTable = config.getTable(backendSupportServerTableKey)
+            val backendSupportServerPort = backendSupportServerTable.getLong("port")
+
+            val backendSupportServer = BackendSupportServer(
+                this,
+                backendSupportServerPort.toInt(),
+                BackendMessage(this)
+                )
+            backendSupportServer.start()
+        }
 
         logger.info("Initialized.")
     }

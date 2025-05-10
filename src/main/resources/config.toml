@@ -1,4 +1,8 @@
 [general]
+[general.backend-support]
+enabled = true
+[general.backend-support.server]
+port = 50005
 
 [discord.general]
 default-channel-id = "1362971564836130838"
