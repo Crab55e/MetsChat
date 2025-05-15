@@ -149,6 +149,7 @@ class MetsChat @Inject constructor(
         val backendSupportTableKey = "general.backend-support"
         val backendSupportTable = config.getTable(backendSupportTableKey)
         if (backendSupportTable.getBoolean("enabled")) {
+
             val backendSupportServerTableKey = "general.backend-support.server"
             val backendSupportServerTable = config.getTable(backendSupportServerTableKey)
             val backendSupportServerPort = backendSupportServerTable.getLong("port")

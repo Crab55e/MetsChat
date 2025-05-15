@@ -28,6 +28,8 @@ dependencies {
     kapt("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("net.dv8tion:JDA:5.3.2")
+    implementation("org.json:json:20240303")
+
 }
 
 tasks {
