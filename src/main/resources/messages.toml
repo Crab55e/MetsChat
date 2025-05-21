@@ -1,6 +1,11 @@
 [general]
 plugin-message-prefix = "<green>[MetsChat]</green> "
 
+[general.backend-support]
+[general.backend-support.server]
+started = "BackendSupport Server listening on {port}"
+# placeholders: host, port
+
 [discord.general]
 default-player-icon-url = "https://mc-heads.net/combo/{uuid}"
 # placeholders: mcid, uuid, uuidNoDashes, textureId
@@ -69,19 +74,24 @@ all-role-names-separator = ", "
 
 [command]
 [command.base]
-format = "Running {pluginVersion}"
+format = "{pluginVersion} を実行中"
 # placeholders: pluginVersion
 
 [command.reload]
-format = "Reloaded configurations"
+format = "設定を再読み込みしました"
 # placeholdders: configFileNames
 
 [command.jda]
 format = """
 MetsChat / JDA
-Status: {discordClientStatus},
-Latency: {discordLatency}ms"""
+ステータス: {discordClientStatus},
+Ping: {discordLatency}ms"""
 # placeholders: discordClientStatus, discordLatency
 
 [command.jda.reconnect]
-format = "Unavailable feature." # 実装したかったが無理そう。未来の自分に任せるよ
+format = "未実装の機能" # 実装したかったが無理そう。未来の自分に任せるよ
+
+[command.jda.cancel-requests]
+success = "{cancelledRequestCount}件のリクエストをキューから削除しました"
+# placeholders: cancelledRequestCount
+failed = "<red>JDAにアクセスできませんでした。</red>"

@@ -45,4 +45,35 @@ class JDACommand(
         context.source?.sendMessage(message)
         return Command.SINGLE_SUCCESS
     }
+
+    fun handleCancelRequests(context: CommandContext<CommandSource?>): Int {
+        val messagesConfig = plugin.getMessageConfigManager().get()
+
+        val discordClient = plugin.getDiscordClient()
+
+        if (discordClient == null) {
+            val messageFormat = messagesConfig.getTable("command.jda.cancel-requests").getString("failed")
+            val message = PrefixedMessageBuilder().make(
+                plugin,
+                messageFormat
+            )
+            context.source?.sendMessage(message)
+            return Command.SINGLE_SUCCESS
+        }
+
+        val cancelled = discordClient.cancelRequests()
+
+        val messageFormat = messagesConfig.getTable("command.jda.cancel-requests").getString("success")
+        val message = PrefixedMessageBuilder().make(
+            plugin,
+            PlaceholderFormatter.format(
+                messageFormat,
+                mapOf(
+                    "cancelledRequestCount" to cancelled.toString()
+                )
+            )
+        )
+        context.source?.sendMessage(message)
+        return Command.SINGLE_SUCCESS
+    }
 }

@@ -24,6 +24,10 @@ object MetsChatCommand {
                     .requires {it.hasPermission("metschat.command.jda.reconnect")}
                     .executes {jdaCommand.handleReconnect(it)}
                 )
+                .then(LiteralArgumentBuilder.literal<CommandSource>("cancel-requests")
+                    .requires {it.hasPermission("metschat.command.jda.cancel-requests")}
+                    .executes {jdaCommand.handleCancelRequests(it)}
+                )
             )
 
         return BrigadierCommand(root.build())

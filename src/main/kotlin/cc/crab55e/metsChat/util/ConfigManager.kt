@@ -29,6 +29,7 @@ class ConfigManager(
             }
         }
         this.config = Toml().read(configFile)
+
     }
     fun get(): Toml {
         return this.config

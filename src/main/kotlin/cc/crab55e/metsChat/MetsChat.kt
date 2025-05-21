@@ -2,10 +2,8 @@ package cc.crab55e.metsChat
 
 import cc.crab55e.metsChat.command.MetsChatCommand
 import cc.crab55e.metsChat.discord.MessageReceived
-import cc.crab55e.metsChat.event.ChatEventListener
-import cc.crab55e.metsChat.event.PlayerJoin
-import cc.crab55e.metsChat.event.PlayerLeave
-import cc.crab55e.metsChat.event.PlayerServerChange
+import cc.crab55e.metsChat.event.*
+import cc.crab55e.metsChat.gateway.BackendSupportServer
 import cc.crab55e.metsChat.util.ColorCodeToColor
 import cc.crab55e.metsChat.util.ConfigManager
 import cc.crab55e.metsChat.util.MessageConfigManager
@@ -19,12 +17,14 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent
 import com.velocitypowered.api.plugin.Plugin
 import com.velocitypowered.api.plugin.annotation.DataDirectory
 import com.velocitypowered.api.proxy.ProxyServer
+import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
+import okhttp3.internal.format
 
 import org.slf4j.Logger
 import java.nio.file.Path
@@ -145,6 +145,36 @@ class MetsChat @Inject constructor(
         val commandMeta = commandManager.metaBuilder("metschat").aliases("mchat").plugin(this).build()
 
         commandManager.register(commandMeta, MetsChatCommand.create(this))
+
+        val backendSupportTableKey = "general.backend-support"
+        val backendSupportTable = config.getTable(backendSupportTableKey)
+        if (backendSupportTable.getBoolean("enabled")) {
+
+            val backendSupportServerTableKey = "general.backend-support.server"
+            val backendSupportServerTable = config.getTable(backendSupportServerTableKey)
+            val backendSupportServerPort = backendSupportServerTable.getLong("port")
+
+            val backendSupportServer = BackendSupportServer(
+                this,
+                backendSupportServerPort.toInt(),
+                BackendMessage(this)
+                )
+            backendSupportServer.start()
+
+            val messagesConfig = getMessageConfigManager().get()
+            val backendSupportServerMessagesTable = messagesConfig.getTable(backendSupportServerTableKey)
+            val startedMessageFormat = backendSupportServerMessagesTable.getString("started")
+
+            val startedMessage = PlaceholderFormatter.format(
+                startedMessageFormat,
+                mapOf(
+                    "port" to backendSupportServerPort.toInt().toString()
+                )
+            )
+
+            logger.info(startedMessage)
+
+        }
 
         logger.info("Initialized.")
     }

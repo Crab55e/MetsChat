@@ -1,4 +1,9 @@
 [general]
+[general.backend-support]
+enabled = true
+[general.backend-support.server]
+port = 50005
+secret = "default" # todo: これを初回起動時に自動で設定してくれると良いな
 
 [discord.general]
 default-channel-id = "1362971564836130838"
