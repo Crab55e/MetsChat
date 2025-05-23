@@ -1,11 +1,6 @@
 [general]
 plugin-message-prefix = "<green>[MetsChat]</green> "
 
-[general.backend-support]
-[general.backend-support.server]
-started = "BackendSupport Server listening on {port}"
-# placeholders: host, port
-
 [discord.general]
 default-player-icon-url = "https://mc-heads.net/combo/{uuid}"
 # placeholders: mcid, uuid, uuidNoDashes, textureId

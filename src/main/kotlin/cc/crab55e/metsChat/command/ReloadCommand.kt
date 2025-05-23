@@ -14,6 +14,7 @@ class ReloadCommand(
     fun handleReload(context: CommandContext<CommandSource?>): Int {
         plugin.getConfigManager().reload()
         plugin.getMessageConfigManager().reload()
+        plugin.getBackendSupportConfigManager().reload()
 
         val messagesConfig = plugin.getMessageConfigManager().get()
         val messageFormat = messagesConfig.getTable("command.reload").getString("format")
@@ -21,7 +22,7 @@ class ReloadCommand(
             plugin,
             messageFormat
         )
-
+        plugin.getLogger().info("Successfully executed reload command.")
         context.source?.sendMessage(message)
         return Command.SINGLE_SUCCESS
     }

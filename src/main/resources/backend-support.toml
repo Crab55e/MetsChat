@@ -1,0 +1,6 @@
+[general]
+enabled = true
+
+[general.server-setting]
+port = 50005
+secret = "default" # todo: これを初回起動時に自動で設定してくれると良いな
