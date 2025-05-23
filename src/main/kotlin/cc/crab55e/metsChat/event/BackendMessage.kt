@@ -14,15 +14,21 @@ class BackendMessage(
         val jsonMessage = JSONObject(data)
         val eventName = jsonMessage.getString("event")
         val serverName = jsonMessage.getString("server_id")
+
         if (eventName == "plugin_enabled") {
             logger.info("Backend server connected: $serverName")
             return
         }
-        val displayMessageJson = jsonMessage.getJSONObject("data").getString("message_json")
+        if (eventName == "plugin_disabled") {
+            logger.info("Backend server disconnected: $serverName")
+            return
+        }
 
-        val displayMessage = GsonComponentSerializer.gson().deserialize(displayMessageJson);
-        sendDisplayMessagesToServer(displayMessage)
-
+        val displayMessageJson = jsonMessage.getString("json_component")
+        if (displayMessageJson != "") {
+            val displayMessage = GsonComponentSerializer.gson().deserialize(displayMessageJson);
+            sendDisplayMessagesToServer(displayMessage)
+        }
     }
 
     private fun sendDisplayMessagesToServer(message: Component) {
