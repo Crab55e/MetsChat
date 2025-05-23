@@ -1,6 +1,9 @@
-package cc.crab55e.metsChat.event
+package cc.crab55e.metsChat.gateway
 
 import cc.crab55e.metsChat.MetsChat
+import cc.crab55e.metsChat.gateway.event.HeartBeat
+import cc.crab55e.metsChat.gateway.event.PluginDisabled
+import cc.crab55e.metsChat.gateway.event.PluginEnabled
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import org.json.JSONObject
@@ -12,21 +15,16 @@ class BackendMessage(
     fun onBackendMessageReceived(data: String) {
         logger.info(data)
         val jsonMessage = JSONObject(data)
-        val eventName = jsonMessage.getString("event")
-        val serverName = jsonMessage.getString("server_id")
-
-        if (eventName == "plugin_enabled") {
-            logger.info("Backend server connected: $serverName")
-            return
-        }
-        if (eventName == "plugin_disabled") {
-            logger.info("Backend server disconnected: $serverName")
-            return
+        when (val eventName = jsonMessage.getString("event")) {
+            "plugin_enabled" -> PluginEnabled(plugin).handler(jsonMessage)
+            "plugin_disabled" -> PluginDisabled(plugin).handler(jsonMessage)
+            "heartbeat" -> HeartBeat(plugin).handler(jsonMessage)
+            else -> logger.error("Unknown event name: $eventName")
         }
 
         val displayMessageJson = jsonMessage.getString("json_component")
         if (displayMessageJson != "") {
-            val displayMessage = GsonComponentSerializer.gson().deserialize(displayMessageJson);
+            val displayMessage = GsonComponentSerializer.gson().deserialize(displayMessageJson)
             sendDisplayMessagesToServer(displayMessage)
         }
     }
