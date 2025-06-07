@@ -1,7 +1,7 @@
 package cc.crab55e.metsChat.gateway
 
 import cc.crab55e.metsChat.MetsChat
-import cc.crab55e.metsChat.gateway.event.HeartBeat
+import cc.crab55e.metsChat.gateway.event.Heartbeat
 import cc.crab55e.metsChat.gateway.event.PluginDisabled
 import cc.crab55e.metsChat.gateway.event.PluginEnabled
 import net.kyori.adventure.text.Component
@@ -18,7 +18,7 @@ class BackendMessage(
         when (val eventName = jsonMessage.getString("event")) {
             "plugin_enabled" -> PluginEnabled(plugin).handler(jsonMessage)
             "plugin_disabled" -> PluginDisabled(plugin).handler(jsonMessage)
-            "heartbeat" -> HeartBeat(plugin).handler(jsonMessage)
+            "heartbeat" -> Heartbeat(plugin).handler(jsonMessage)
             else -> logger.error("Unknown event name: $eventName")
         }
 

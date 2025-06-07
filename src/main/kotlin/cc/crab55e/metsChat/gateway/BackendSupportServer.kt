@@ -26,7 +26,7 @@ class BackendSupportServer(
                         val reader = client.getInputStream().bufferedReader()
                         val writer = client.getOutputStream().bufferedWriter()
 
-                        val backendSupportServerTable = plugin.getConfigManager().get().getTable("general.backend-support.server")
+                        val backendSupportServerTable = plugin.getBackendSupportConfigManager().get().getTable("general.server-setting")
                         val expectedSecret = backendSupportServerTable.getString("secret")
 
                         val message = reader.readLine()

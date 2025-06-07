@@ -5,6 +5,8 @@ import cc.crab55e.metsChat.discord.MessageReceived
 import cc.crab55e.metsChat.event.*
 import cc.crab55e.metsChat.gateway.BackendMessage
 import cc.crab55e.metsChat.gateway.BackendSupportServer
+import cc.crab55e.metsChat.gateway.HeartbeatTask
+import cc.crab55e.metsChat.gateway.HeartbeatTracker
 import cc.crab55e.metsChat.util.*
 
 import com.google.inject.Inject
@@ -25,6 +27,7 @@ import okhttp3.internal.concurrent.TaskRunner
 
 import org.slf4j.Logger
 import java.nio.file.Path
+import java.util.concurrent.TimeUnit
 
 
 @Plugin(
@@ -38,6 +41,7 @@ class MetsChat @Inject constructor(
     private val configManager = ConfigManager(this, dataDirectory)
     private val messageConfigManager = MessageConfigManager(this, dataDirectory)
     private val backendSupportConfigManager = BackendSupportConfigManager(this, dataDirectory)
+    private val heartbeatTracker = HeartbeatTracker(this)
 
     fun getLogger(): Logger {
         return logger
@@ -70,6 +74,10 @@ class MetsChat @Inject constructor(
 
     fun getCommandManager(): CommandManager {
         return server.commandManager
+    }
+
+    fun getHeartbeatTracker(): HeartbeatTracker {
+        return heartbeatTracker
     }
 
     @Subscribe
@@ -154,7 +162,7 @@ class MetsChat @Inject constructor(
         if (backendSupportGeneralTable.getBoolean("enabled")) {
 
             val backendSupportServerTableKey = "general.server-setting"
-            val backendSupportServerTable = config.getTable(backendSupportServerTableKey)
+            val backendSupportServerTable = backendSupportConfig.getTable(backendSupportServerTableKey)
             val backendSupportServerPort = backendSupportServerTable.getLong("port")
 
             val backendSupportServer = BackendSupportServer(
@@ -164,6 +172,10 @@ class MetsChat @Inject constructor(
             )
             backendSupportServer.start()
             logger.info("BackendSupport Server listening on $backendSupportServerPort")
+
+            server.scheduler.buildTask(this, HeartbeatTask(this))
+                .repeat(1L, TimeUnit.MINUTES)
+                .schedule()
         }
         logger.info("Initialized.")
     }

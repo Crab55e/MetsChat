@@ -4,3 +4,31 @@ enabled = true
 [general.server-setting]
 port = 50005
 secret = "default" # todo: これを初回起動時に自動で設定してくれると良いな
+
+[discord.general]
+default-channel-id = "1362971564836130838"
+
+[gateway]
+[gateway.plugin-enabled]
+[gateway.plugin-enabled.discord-notify]
+enabled = true
+channel-id = ""
+
+[gateway.plugin-disabled]
+[gateway.plugin-disabled.discord-notify]
+enabled = true
+channel-id = ""
+
+[gateway.timeout]
+check-interval = 60 # seconds
+enabled-logging = true
+message-interval = 300 # seconds
+
+[gateway.timeout.discord-notify]
+enabled = true
+channel-id = ""
+
+[gateway.resumed]
+[gateway.resumed.discord-notify]
+enabled = true
+channel-id = ""

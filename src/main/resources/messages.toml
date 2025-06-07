@@ -50,7 +50,7 @@ color = "#6666ff"
 [message-share.to-discord.boot-notify]
 [message-share.to-discord.boot-notify.on-initialize]
 title = 'プロキシが起動しました'
-desc = "Proxy: {proxyVersion}\nRAM: {usedRamMB}/{maxRamMB}MB\nDiscord Latency: {discordLatency}ms"
+desc = "**Proxy**: {proxyVersion}\n**RAM**: {usedRamMB}/{maxRamMB}MB\n**Discord Latency**: {discordLatency}ms"
 content = ""
 # placeholders: proxyVersion, maxRamMB, usedRamMB, discordLatency
 color = "#00ff00"
@@ -66,6 +66,40 @@ format = "[<click:open_url:'{discordMessageUrl}'><hover:show_text:'Discordで開
 # placeholders: authorName, message, roleColorHex, allRoleNames, discordMessageUrl
 parse-markdown = true
 all-role-names-separator = ", "
+
+[backend-support]
+[backend-support.plugin-enabled]
+[backend-support.plugin-enabled.discord-notify]
+title = "バックエンドサーバー {backendServer} が接続されました"
+desc = ""
+content = ""
+# placeholders: backendServer
+color = "#00ff00"
+
+[backend-support.plugin-disabled]
+[backend-support.plugin-disabled.discord-notify]
+title = "バックエンドサーバー {backendServer} が切断されました"
+desc = ""
+content = ""
+# placeholders: backendServer
+color = "#00ff00"
+
+[backend-support.timeout]
+[backend-support.timeout.discord-notify]
+title = "バックエンドサーバー {backendServer} の接続がタイムアウトしました。"
+desc = "最後の応答: <t:{lastHeartbeatUnix}:R> / `{backendServer}`\nバックエンドサーバーが正常に終了している場合アラートを停止してください。"
+content = "<@776726560929480707>"
+# placeholders: backendServer, lastHeartbeatUnix
+color = "#00ff00"
+stop-button-label = "アラートを停止"
+
+[backend-support.resumed]
+[backend-support.resumed.discord-notify]
+title = "バックエンドサーバー {backendServer} がタイムアウトから復旧しました。"
+desc = "最後のタイムアウト: <t:{lastTimeoutUnix}:T>"
+content = "<@776726560929480707>"
+# placeholders: backendServer, lastTimeoutUnix
+color = "#ff0000"
 
 [command]
 [command.base]

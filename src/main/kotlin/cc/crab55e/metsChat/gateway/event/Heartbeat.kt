@@ -1,13 +1,15 @@
 package cc.crab55e.metsChat.gateway.event
 
 import cc.crab55e.metsChat.MetsChat
+import cc.crab55e.metsChat.gateway.HeartbeatTracker
 import org.json.JSONObject
 
-class PluginDisabled(private val plugin: MetsChat) {
+class Heartbeat(private val plugin: MetsChat) {
     private val logger = plugin.getLogger()
     private val heartbeatTracker = plugin.getHeartbeatTracker()
     fun handler(data: JSONObject) {
         val serverName = data.getString("server_id")
-        logger.info("Backend server disconnected: $serverName")
+        val timestamp = data.getString("timestamp")
+        heartbeatTracker.update(serverName, timestamp, null)
     }
 }
