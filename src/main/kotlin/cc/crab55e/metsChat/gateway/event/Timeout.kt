@@ -1,27 +1,38 @@
 package cc.crab55e.metsChat.gateway.event
 
 import cc.crab55e.metsChat.MetsChat
-import java.time.Instant
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
+import cc.crab55e.metsChat.gateway.HeartbeatTracker.Server
 
 class Timeout(private val plugin: MetsChat) {
     private val logger = plugin.getLogger()
     private val heartbeatTracker = plugin.getHeartbeatTracker()
     fun handler(
-        serverId: String,
+        server: Server,
         diff: Long,
         timestamp: String
     ) {
-        logger.info("timeout server: $serverId $diff seconds, last heartbeat is $timestamp")
-        val isoTimestamp = DateTimeFormatter.ISO_INSTANT
-            .withZone(ZoneOffset.UTC)
-            .format(Instant.ofEpochMilli(System.currentTimeMillis()))
-        heartbeatTracker.update(
-            serverId,
-            null,
-            isoTimestamp
-        )
-        return
+        server.updateTimeoutSeconds(diff)
+
+        val backendSupportConfig = plugin.getBackendSupportConfigManager().get()
+        val gatewayTimeoutTable = backendSupportConfig.getTable("gateway.timeout")
+        val discordNotifyTable = backendSupportConfig.getTable("gateway.timeout.discord-notify")
+
+        if (gatewayTimeoutTable.getBoolean("enabled-logging")) {
+            logger.error("Timeout server: ${server.id}, $diff seconds ago, last timestamp is $timestamp")
+        }
+
+        if (discordNotifyTable.getBoolean("enabled")) {
+            val discordClient = plugin.getDiscordClient()
+            discordClient!!.awaitReady()
+
+            val defaultChannelId = backendSupportConfig.getTable("discord.general").getString("default-channel-id")
+            var channelId = discordNotifyTable.getString("channel-id")
+            if (channelId == "") channelId = defaultChannelId
+
+            val channel = discordClient.getTextChannelById(channelId)
+            if (channel != null) {
+                return
+            } else logger.warn("failed to get to timeout message channel.")
+        }
     }
 }

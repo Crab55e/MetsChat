@@ -15,14 +15,7 @@ class PluginDisabled(private val plugin: MetsChat) {
     private val heartbeatTracker = plugin.getHeartbeatTracker()
     fun handler(data: JSONObject) {
         val serverName = data.getString("server_id")
-        logger.info("Backend server disconnected: $serverName")
-
         val timestamp = data.getString("timestamp")
-        heartbeatTracker.update(
-            serverName,
-            null,
-            timestamp
-        )
 
         val backendSupportConfig = plugin.getBackendSupportConfigManager().get()
         val discordNotifyTable = backendSupportConfig.getTable("gateway.plugin-disabled.discord-notify")

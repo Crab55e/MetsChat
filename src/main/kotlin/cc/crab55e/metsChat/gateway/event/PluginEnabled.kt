@@ -14,7 +14,7 @@ class PluginEnabled(private val plugin: MetsChat) {
         val serverName = data.getString("server_id")
         logger.info("Backend server connected: $serverName")
 
-        heartbeatTracker.make(serverName)
+        heartbeatTracker.registerServer(serverName)
 
         val backendSupportConfig = plugin.getBackendSupportConfigManager().get()
         val discordNotifyTable = backendSupportConfig.getTable("gateway.plugin-enabled.discord-notify")

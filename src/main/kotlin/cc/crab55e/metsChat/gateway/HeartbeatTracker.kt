@@ -3,26 +3,40 @@ package cc.crab55e.metsChat.gateway
 import cc.crab55e.metsChat.MetsChat
 
 class HeartbeatTracker(private val plugin: MetsChat) {
-    private val heartbeats = mutableMapOf<String, MutableMap<String, String?>>()
+    private val servers = mutableMapOf<String, Server>()
 
-    fun make(id: String) {
-        if (!heartbeats[id].isNullOrEmpty()) return
-        heartbeats[id] = mutableMapOf()
+    fun registerServer(id: String): Server {
+        if (servers[id] != null) return servers[id]!!
+        val server = Server(id)
+        servers[id] = server
+        return server
     }
 
-    fun update(id: String, timestamp: String?, lastDisconnect: String?) {
-        if (!timestamp.isNullOrEmpty()) {
-            heartbeats[id]?.set("timestamp", timestamp)
+    fun getServer(id: String): Server = servers[id] ?: registerServer(id)
+
+    fun removeServer(server: Server): Map<String, Server> {
+        servers.remove(server.id)
+        return servers
+    }
+
+    fun getServers(): List<Server> = servers.values.toList()
+
+    class Server(val id: String) {
+        var lastHeartbeat: String? = null
+        var lastCheck: String? = null
+        var timeoutSeconds: Long? = null
+
+        fun updateHeartbeat(timestamp: String) {
+            lastHeartbeat = timestamp
         }
-        if (!lastDisconnect.isNullOrEmpty()) {
-            heartbeats[id]?.set("last_disconnect", timestamp)
+        fun updateLastCheck(timestamp: String) {
+            lastCheck = timestamp
+        }
+        fun updateTimeoutSeconds(seconds: Long) {
+            timeoutSeconds = seconds
+        }
+        fun removeTimeoutSeconds() {
+            timeoutSeconds = null
         }
     }
-    fun remove(id: String) {
-        heartbeats.remove(id)
-    }
-
-    fun getLastHeartbeat(id: String): String? = heartbeats[id]?.get("timestamp")
-    fun getLastDisconnect(id: String): String? = heartbeats[id]?.get("last_disconnect")
-    fun getServers(): List<String> = heartbeats.keys.toList()
 }

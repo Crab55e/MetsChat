@@ -23,11 +23,11 @@ channel-id = ""
 check-interval = 1 # seconds, required server restart if changed.
 timeout = 30 # seconds
 enabled-logging = true
-message-interval = 300 # seconds
 
 [gateway.timeout.discord-notify]
 enabled = true
 channel-id = ""
+message-interval = 300 # seconds
 
 [gateway.resumed]
 [gateway.resumed.discord-notify]
