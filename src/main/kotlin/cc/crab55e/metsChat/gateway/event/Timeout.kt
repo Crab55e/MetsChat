@@ -1,7 +1,9 @@
 package cc.crab55e.metsChat.gateway.event
 
 import cc.crab55e.metsChat.MetsChat
-import org.json.JSONObject
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 class Timeout(private val plugin: MetsChat) {
     private val logger = plugin.getLogger()
@@ -11,11 +13,13 @@ class Timeout(private val plugin: MetsChat) {
         diff: Long,
         timestamp: String
     ) {
-        val now = ""
+        val isoTimestamp = DateTimeFormatter.ISO_INSTANT
+            .withZone(ZoneOffset.UTC)
+            .format(Instant.ofEpochMilli(System.currentTimeMillis()))
         heartbeatTracker.update(
             serverId,
             null,
-            now
+            isoTimestamp
         )
         return
     }

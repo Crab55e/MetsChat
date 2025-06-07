@@ -6,7 +6,6 @@ import cc.crab55e.metsChat.util.PlaceholderFormatter
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import org.json.JSONObject
-import kotlin.math.log
 
 class PluginEnabled(private val plugin: MetsChat) {
     private val logger = plugin.getLogger()

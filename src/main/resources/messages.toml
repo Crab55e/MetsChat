@@ -82,7 +82,7 @@ title = "バックエンドサーバー {backendServer} が切断されました
 desc = ""
 content = ""
 # placeholders: backendServer
-color = "#00ff00"
+color = "#ff0000"
 
 [backend-support.timeout]
 [backend-support.timeout.discord-notify]
