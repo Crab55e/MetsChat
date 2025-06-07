@@ -23,7 +23,6 @@ import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
-import okhttp3.internal.concurrent.TaskRunner
 
 import org.slf4j.Logger
 import java.nio.file.Path
@@ -173,10 +172,12 @@ class MetsChat @Inject constructor(
             backendSupportServer.start()
             logger.info("BackendSupport Server listening on $backendSupportServerPort")
 
+            val gatewayTimeoutCheckInterval = backendSupportConfig.getTable("gateway.timeout").getLong("check-interval")
+
             server.scheduler.buildTask(this, HeartbeatTask(this))
-                .repeat(1L, TimeUnit.MINUTES)
+                .repeat(gatewayTimeoutCheckInterval, TimeUnit.SECONDS)
                 .schedule()
-        }
+        } else logger.info("backend support is disabled.")
         logger.info("Initialized.")
     }
     @Subscribe

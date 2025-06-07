@@ -6,6 +6,9 @@ import cc.crab55e.metsChat.util.PlaceholderFormatter
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import org.json.JSONObject
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 class PluginDisabled(private val plugin: MetsChat) {
     private val logger = plugin.getLogger()
@@ -13,6 +16,13 @@ class PluginDisabled(private val plugin: MetsChat) {
     fun handler(data: JSONObject) {
         val serverName = data.getString("server_id")
         logger.info("Backend server disconnected: $serverName")
+
+        val timestamp = data.getString("timestamp")
+        heartbeatTracker.update(
+            serverName,
+            null,
+            timestamp
+        )
 
         val backendSupportConfig = plugin.getBackendSupportConfigManager().get()
         val discordNotifyTable = backendSupportConfig.getTable("gateway.plugin-disabled.discord-notify")

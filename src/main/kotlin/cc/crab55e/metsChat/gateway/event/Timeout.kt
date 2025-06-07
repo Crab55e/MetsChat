@@ -13,6 +13,7 @@ class Timeout(private val plugin: MetsChat) {
         diff: Long,
         timestamp: String
     ) {
+        logger.info("timeout server: $serverId $diff seconds, last heartbeat is $timestamp")
         val isoTimestamp = DateTimeFormatter.ISO_INSTANT
             .withZone(ZoneOffset.UTC)
             .format(Instant.ofEpochMilli(System.currentTimeMillis()))

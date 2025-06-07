@@ -7,6 +7,12 @@ import java.time.Instant
 
 class HeartbeatTask (private val plugin: MetsChat): Runnable {
     override fun run() {
+        val backendSupportConfig = plugin.getBackendSupportConfigManager().get()
+
+        val gatewayTimeoutTable = backendSupportConfig.getTable("gateway.timeout")
+
+        val gatewayTimeout = gatewayTimeoutTable.getLong("timeout")
+
         val now = Instant.now()
         val heartbeatTracker = plugin.getHeartbeatTracker()
         val connectedServers = heartbeatTracker.getServers()
@@ -15,8 +21,7 @@ class HeartbeatTask (private val plugin: MetsChat): Runnable {
             val lastHeartbeatTime = Instant.parse(lastHeartbeatISO)
             val timeDifference = Duration.between(lastHeartbeatTime, now)
 
-            val timeout = 5
-            if (timeDifference.toSeconds() > timeout) {
+            if (timeDifference.toSeconds() >= gatewayTimeout) {
                 Timeout(plugin).handler(
                     server,
                     timeDifference.toSeconds(),

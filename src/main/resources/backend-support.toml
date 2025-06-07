@@ -20,7 +20,8 @@ enabled = true
 channel-id = ""
 
 [gateway.timeout]
-check-interval = 60 # seconds
+check-interval = 1 # seconds, required server restart if changed.
+timeout = 30 # seconds
 enabled-logging = true
 message-interval = 300 # seconds
 
