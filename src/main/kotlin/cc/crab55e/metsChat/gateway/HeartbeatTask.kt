@@ -1,7 +1,6 @@
 package cc.crab55e.metsChat.gateway
 
 import cc.crab55e.metsChat.MetsChat
-import cc.crab55e.metsChat.gateway.event.Timeout
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset
@@ -28,8 +27,8 @@ class HeartbeatTask (private val plugin: MetsChat): Runnable {
             val lastHeartbeatTime = Instant.parse(lastHeartbeatISO)
             val timeDifference = Duration.between(lastHeartbeatTime, now)
 
-            if (timeDifference.toSeconds() >= gatewayTimeout) {
-                Timeout(plugin).handler(
+            if (timeDifference.toSeconds() >= gatewayTimeout && server.timeoutSeconds == null) {
+                plugin.getHeartbeatTimeoutEvent().startTimeoutNotify(
                     server,
                     timeDifference.toSeconds(),
                     lastHeartbeatISO

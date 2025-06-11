@@ -86,16 +86,19 @@ color = "#ff0000"
 
 [backend-support.timeout]
 [backend-support.timeout.discord-notify]
-title = "バックエンドサーバー {backendServer} の接続がタイムアウトしました。"
-desc = "最後の応答: <t:{lastHeartbeatUnix}:R> / `{backendServer}`\nバックエンドサーバーが正常に終了している場合アラートを停止してください。"
+title = "バックエンドサーバー {backendServer} のタイムアウトを検知しました"
+desc = "最後の応答: <t:{lastHeartbeatUnix}:R> / `{backendServer}`\nバックエンドサーバーが正常に終了している場合アラートを停止してください"
 content = "<@776726560929480707>"
 # placeholders: backendServer, lastHeartbeatUnix
-color = "#00ff00"
+color = "#ff0000"
 stop-button-label = "アラートを停止"
+notify-stopped-message = "アラートを停止しました"
+notify-already-stopped-message = "アラートは既に停止しています"
+stop-button-permission-denied = "アラート停止ボタンを押す権限がありません。"
 
 [backend-support.resumed]
 [backend-support.resumed.discord-notify]
-title = "バックエンドサーバー {backendServer} がタイムアウトから復旧しました。"
+title = "バックエンドサーバー {backendServer} のタイムアウトから復旧を検知しました"
 desc = "最後のタイムアウト: <t:{lastTimeoutUnix}:T>"
 content = "<@776726560929480707>"
 # placeholders: backendServer, lastTimeoutUnix

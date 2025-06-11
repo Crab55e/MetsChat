@@ -1,12 +1,14 @@
 package cc.crab55e.metsChat
 
 import cc.crab55e.metsChat.command.MetsChatCommand
+import cc.crab55e.metsChat.discord.ButtonInteraction
 import cc.crab55e.metsChat.discord.MessageReceived
 import cc.crab55e.metsChat.event.*
 import cc.crab55e.metsChat.gateway.BackendMessage
 import cc.crab55e.metsChat.gateway.BackendSupportServer
 import cc.crab55e.metsChat.gateway.HeartbeatTask
 import cc.crab55e.metsChat.gateway.HeartbeatTracker
+import cc.crab55e.metsChat.gateway.event.Timeout
 import cc.crab55e.metsChat.util.*
 
 import com.google.inject.Inject
@@ -22,6 +24,7 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 
 import org.slf4j.Logger
@@ -41,6 +44,7 @@ class MetsChat @Inject constructor(
     private val messageConfigManager = MessageConfigManager(this, dataDirectory)
     private val backendSupportConfigManager = BackendSupportConfigManager(this, dataDirectory)
     private val heartbeatTracker = HeartbeatTracker(this)
+    private val heartbeatTimeoutEvent = Timeout(this)
 
     fun getLogger(): Logger {
         return logger
@@ -79,6 +83,10 @@ class MetsChat @Inject constructor(
         return heartbeatTracker
     }
 
+    fun getHeartbeatTimeoutEvent(): Timeout {
+        return heartbeatTimeoutEvent
+    }
+
     @Subscribe
     fun onProxyInitialization(event: ProxyInitializeEvent) {
         logger.info("Initializing...")
@@ -98,10 +106,20 @@ class MetsChat @Inject constructor(
         }
 
         discordClient = JDABuilder.createDefault(
-            botToken, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS
-        ).addEventListeners(
-            MessageReceived(this)
-        ).build()
+            botToken,
+            GatewayIntent.GUILD_MESSAGES,
+            GatewayIntent.MESSAGE_CONTENT,
+            GatewayIntent.GUILD_MEMBERS,
+            GatewayIntent.GUILD_VOICE_STATES,
+            GatewayIntent.GUILD_EXPRESSIONS,
+            GatewayIntent.SCHEDULED_EVENTS
+        )
+            .addEventListeners(
+                MessageReceived(this),
+                ButtonInteraction(this)
+            )
+            .setMemberCachePolicy(MemberCachePolicy.ALL)
+            .build()
 
         discordClient!!.awaitReady()
 
