@@ -4,7 +4,7 @@ import org.jetbrains.gradle.ext.taskTriggers
 plugins {
     kotlin("jvm") version "2.0.20-Beta1"
     kotlin("kapt") version "2.0.20-Beta1"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.0.0-rc1"
     id("eclipse")
     id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.8"
     id("xyz.jpenilla.run-velocity") version "2.3.1"
@@ -26,9 +26,10 @@ repositories {
 dependencies {
     compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     kapt("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("net.dv8tion:JDA:5.3.2")
     implementation("org.json:json:20240303")
+    implementation("com.google.guava:guava:33.4.8-jre")
+
 
 }
 
