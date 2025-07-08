@@ -27,7 +27,7 @@ enabled-logging = true
 [gateway.timeout.discord-notify]
 enabled = true
 channel-id = ""
-message-interval = 30 # seconds
+message-interval = 3600 # seconds
 max-message-loop = 5
 notify-stop-button-pushable-user-ids = ["776726560929480707"]
 
