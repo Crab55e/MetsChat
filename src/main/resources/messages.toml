@@ -1,11 +1,6 @@
 [general]
 plugin-message-prefix = "<green>[MetsChat]</green> "
 
-[general.backend-support]
-[general.backend-support.server]
-started = "BackendSupport Server listening on {port}"
-# placeholders: host, port
-
 [discord.general]
 default-player-icon-url = "https://mc-heads.net/combo/{uuid}"
 # placeholders: mcid, uuid, uuidNoDashes, textureId
@@ -55,7 +50,7 @@ color = "#6666ff"
 [message-share.to-discord.boot-notify]
 [message-share.to-discord.boot-notify.on-initialize]
 title = 'プロキシが起動しました'
-desc = "Proxy: {proxyVersion}\nRAM: {usedRamMB}/{maxRamMB}MB\nDiscord Latency: {discordLatency}ms"
+desc = "**Proxy**: {proxyVersion}\n**RAM**: {usedRamMB}/{maxRamMB}MB\n**Discord Latency**: {discordLatency}ms"
 content = ""
 # placeholders: proxyVersion, maxRamMB, usedRamMB, discordLatency
 color = "#00ff00"
@@ -71,6 +66,43 @@ format = "[<click:open_url:'{discordMessageUrl}'><hover:show_text:'Discordで開
 # placeholders: authorName, message, roleColorHex, allRoleNames, discordMessageUrl
 parse-markdown = true
 all-role-names-separator = ", "
+
+[backend-support]
+[backend-support.plugin-enabled]
+[backend-support.plugin-enabled.discord-notify]
+title = "バックエンドサーバー {backendServer} が接続されました"
+desc = ""
+content = ""
+# placeholders: backendServer
+color = "#00ff00"
+
+[backend-support.plugin-disabled]
+[backend-support.plugin-disabled.discord-notify]
+title = "バックエンドサーバー {backendServer} が切断されました"
+desc = ""
+content = ""
+# placeholders: backendServer
+color = "#ff0000"
+
+[backend-support.timeout]
+[backend-support.timeout.discord-notify]
+title = "バックエンドサーバー {backendServer} のタイムアウトを検知しました"
+desc = "最後の応答: <t:{lastHeartbeatUnix}:R> / `{backendServer}`\nバックエンドサーバーが正常に終了している場合アラートを停止してください"
+content = "<@776726560929480707>"
+# placeholders: backendServer, lastHeartbeatUnix
+color = "#ff0000"
+stop-button-label = "アラートを停止"
+notify-stopped-message = "アラートを停止しました"
+notify-already-stopped-message = "アラートは既に停止しています"
+stop-button-permission-denied = "アラート停止ボタンを押す権限がありません。"
+
+[backend-support.resumed]
+[backend-support.resumed.discord-notify]
+title = "バックエンドサーバー {backendServer} のタイムアウトから復旧を検知しました"
+desc = "最後のタイムアウト: <t:{lastTimeoutUnix}:T>"
+content = "<@776726560929480707>"
+# placeholders: backendServer, lastTimeoutUnix
+color = "#ff0000"
 
 [command]
 [command.base]

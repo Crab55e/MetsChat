@@ -1,13 +1,15 @@
 package cc.crab55e.metsChat
 
 import cc.crab55e.metsChat.command.MetsChatCommand
+import cc.crab55e.metsChat.discord.ButtonInteraction
 import cc.crab55e.metsChat.discord.MessageReceived
 import cc.crab55e.metsChat.event.*
+import cc.crab55e.metsChat.gateway.BackendMessage
 import cc.crab55e.metsChat.gateway.BackendSupportServer
-import cc.crab55e.metsChat.util.ColorCodeToColor
-import cc.crab55e.metsChat.util.ConfigManager
-import cc.crab55e.metsChat.util.MessageConfigManager
-import cc.crab55e.metsChat.util.PlaceholderFormatter
+import cc.crab55e.metsChat.gateway.HeartbeatTask
+import cc.crab55e.metsChat.gateway.HeartbeatTracker
+import cc.crab55e.metsChat.gateway.event.Timeout
+import cc.crab55e.metsChat.util.*
 
 import com.google.inject.Inject
 import com.velocitypowered.api.command.CommandManager
@@ -17,17 +19,17 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent
 import com.velocitypowered.api.plugin.Plugin
 import com.velocitypowered.api.plugin.annotation.DataDirectory
 import com.velocitypowered.api.proxy.ProxyServer
-import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
-import okhttp3.internal.format
 
 import org.slf4j.Logger
 import java.nio.file.Path
+import java.util.concurrent.TimeUnit
 
 
 @Plugin(
@@ -40,6 +42,9 @@ class MetsChat @Inject constructor(
     private var discordClient: JDA? = null
     private val configManager = ConfigManager(this, dataDirectory)
     private val messageConfigManager = MessageConfigManager(this, dataDirectory)
+    private val backendSupportConfigManager = BackendSupportConfigManager(this, dataDirectory)
+    private val heartbeatTracker = HeartbeatTracker(this)
+    private val heartbeatTimeoutEvent = Timeout(this)
 
     fun getLogger(): Logger {
         return logger
@@ -57,6 +62,10 @@ class MetsChat @Inject constructor(
         return messageConfigManager
     }
 
+    fun getBackendSupportConfigManager(): BackendSupportConfigManager {
+        return backendSupportConfigManager
+    }
+
     fun getDiscordClient(): JDA? {
         discordClient?.awaitReady()
         return discordClient
@@ -68,6 +77,14 @@ class MetsChat @Inject constructor(
 
     fun getCommandManager(): CommandManager {
         return server.commandManager
+    }
+
+    fun getHeartbeatTracker(): HeartbeatTracker {
+        return heartbeatTracker
+    }
+
+    fun getHeartbeatTimeoutEvent(): Timeout {
+        return heartbeatTimeoutEvent
     }
 
     @Subscribe
@@ -89,10 +106,20 @@ class MetsChat @Inject constructor(
         }
 
         discordClient = JDABuilder.createDefault(
-            botToken, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS
-        ).addEventListeners(
-            MessageReceived(this)
-        ).build()
+            botToken,
+            GatewayIntent.GUILD_MESSAGES,
+            GatewayIntent.MESSAGE_CONTENT,
+            GatewayIntent.GUILD_MEMBERS,
+            GatewayIntent.GUILD_VOICE_STATES,
+            GatewayIntent.GUILD_EXPRESSIONS,
+            GatewayIntent.SCHEDULED_EVENTS
+        )
+            .addEventListeners(
+                MessageReceived(this),
+                ButtonInteraction(this)
+            )
+            .setMemberCachePolicy(MemberCachePolicy.ALL)
+            .build()
 
         discordClient!!.awaitReady()
 
@@ -146,39 +173,31 @@ class MetsChat @Inject constructor(
 
         commandManager.register(commandMeta, MetsChatCommand.create(this))
 
-        val backendSupportTableKey = "general.backend-support"
-        val backendSupportTable = config.getTable(backendSupportTableKey)
-        if (backendSupportTable.getBoolean("enabled")) {
+        val backendSupportConfig = backendSupportConfigManager.get()
+        val backendSupportGeneralTableKey = "general"
+        val backendSupportGeneralTable = backendSupportConfig.getTable(backendSupportGeneralTableKey)
+        if (backendSupportGeneralTable.getBoolean("enabled")) {
 
-            val backendSupportServerTableKey = "general.backend-support.server"
-            val backendSupportServerTable = config.getTable(backendSupportServerTableKey)
+            val backendSupportServerTableKey = "general.server-setting"
+            val backendSupportServerTable = backendSupportConfig.getTable(backendSupportServerTableKey)
             val backendSupportServerPort = backendSupportServerTable.getLong("port")
 
             val backendSupportServer = BackendSupportServer(
                 this,
                 backendSupportServerPort.toInt(),
                 BackendMessage(this)
-                )
-            backendSupportServer.start()
-
-            val messagesConfig = getMessageConfigManager().get()
-            val backendSupportServerMessagesTable = messagesConfig.getTable(backendSupportServerTableKey)
-            val startedMessageFormat = backendSupportServerMessagesTable.getString("started")
-
-            val startedMessage = PlaceholderFormatter.format(
-                startedMessageFormat,
-                mapOf(
-                    "port" to backendSupportServerPort.toInt().toString()
-                )
             )
+            backendSupportServer.start()
+            logger.info("BackendSupport Server listening on $backendSupportServerPort")
 
-            logger.info(startedMessage)
+            val gatewayTimeoutCheckInterval = backendSupportConfig.getTable("gateway.timeout").getLong("check-interval")
 
-        }
-
+            server.scheduler.buildTask(this, HeartbeatTask(this))
+                .repeat(gatewayTimeoutCheckInterval, TimeUnit.SECONDS)
+                .schedule()
+        } else logger.info("backend support is disabled.")
         logger.info("Initialized.")
     }
-
     @Subscribe
     fun onProxyShutdown(event: ProxyShutdownEvent) {
         logger.info("Disabling...")

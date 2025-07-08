@@ -18,6 +18,7 @@ class PlayerJoin(
         if (event.previousServer.isPresent) return
         // PlayerServerChangeに任せるぜ！
 
+        // TODO: サーバー全体で共有するのを忘れている
 
         val config = plugin.getConfigManager().get()
         val messagesConfig = plugin.getMessageConfigManager().get()
@@ -77,6 +78,6 @@ class PlayerJoin(
                 .build()
             connectionJoinChannel.sendMessageEmbeds(embed).queue()
         }
-
+        logger.warn("failed to get player join channel.")
     }
 }

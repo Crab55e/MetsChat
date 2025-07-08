@@ -1,7 +1,6 @@
 package cc.crab55e.metsChat.gateway
 
 import cc.crab55e.metsChat.MetsChat
-import cc.crab55e.metsChat.event.BackendMessage
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.net.ServerSocket
@@ -27,7 +26,7 @@ class BackendSupportServer(
                         val reader = client.getInputStream().bufferedReader()
                         val writer = client.getOutputStream().bufferedWriter()
 
-                        val backendSupportServerTable = plugin.getConfigManager().get().getTable("general.backend-support.server")
+                        val backendSupportServerTable = plugin.getBackendSupportConfigManager().get().getTable("general.server-setting")
                         val expectedSecret = backendSupportServerTable.getString("secret")
 
                         val message = reader.readLine()
