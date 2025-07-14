@@ -45,6 +45,7 @@ class MetsChat @Inject constructor(
     private val backendSupportConfigManager = BackendSupportConfigManager(this, dataDirectory)
     private val heartbeatTracker = HeartbeatTracker(this)
     private val heartbeatTimeoutEvent = Timeout(this)
+    private val jsonComponentParser = JsonComponentParser(this)
 
     fun getLogger(): Logger {
         return logger
@@ -85,6 +86,10 @@ class MetsChat @Inject constructor(
 
     fun getHeartbeatTimeoutEvent(): Timeout {
         return heartbeatTimeoutEvent
+    }
+
+    fun getJsonComponentParser(): JsonComponentParser {
+        return jsonComponentParser
     }
 
     @Subscribe
