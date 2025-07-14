@@ -77,7 +77,6 @@ class PlayerJoin(
                 )
                 .build()
             connectionJoinChannel.sendMessageEmbeds(embed).queue()
-        }
-        logger.warn("failed to get player join channel.")
+        } else logger.warn("failed to get player join channel.")
     }
 }

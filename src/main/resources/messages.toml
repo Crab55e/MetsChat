@@ -98,11 +98,34 @@ stop-button-permission-denied = "アラート停止ボタンを押す権限が�
 
 [backend-support.resumed]
 [backend-support.resumed.discord-notify]
-title = "バックエンドサーバー {backendServer} のタイムアウトから復旧を検知しました"
+title = "バックエンドサーバー {backendServer} のタイムアウトからの復旧を検知しました"
 desc = "最後のタイムアウト: <t:{lastTimeoutUnix}:T>"
 content = "<@776726560929480707>"
 # placeholders: backendServer, lastTimeoutUnix
 color = "#ff0000"
+
+[backend-support.player-events]
+[backend-support.player-events.on-death]
+[backend-support.player-events.on-death.in-servers]
+format = "<hover:show_text:'from {eventServer}'><yellow>*</yellow>{message}</hover>"
+# placeholders: eventServer, message
+[backend-support.player-events.on-death.discord]
+author-icon-url = ""
+# placeholders: mcid, uuid, uuidNoDashes
+author-name = "{eventServer} / {message}"
+# placeholders: eventServer, message
+color = "#4c4c54"
+
+[backend-support.player-events.on-advancement-done]
+[backend-support.player-events.on-advancement-done.in-servers]
+format = "<hover:show_text:'from {senderServer}'><yellow>*</yellow>{message}</hover>"
+# placeholders: eventServer, message
+[backend-support.player-events.on-advancement-done.discord]
+author-icon-url = ""
+# placeholders: mcid, uuid, uuidNoDashes
+author-name = "{eventServer} / {message}"
+# placeholders: eventServer, message
+color = "#4c4c54"
 
 [command]
 [command.base]

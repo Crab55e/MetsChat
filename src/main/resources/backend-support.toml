@@ -35,3 +35,17 @@ notify-stop-button-pushable-user-ids = ["776726560929480707"]
 [gateway.resumed.discord-notify]
 enabled = true
 channel-id = ""
+
+[player-events.on-death.in-servers]
+enabled = true
+
+[player-events.on-death.discord]
+enabled = true
+channel-id = ""
+
+[player-events.on-advancement-done.in-servers]
+enabled = true
+
+[player-events.on-advancement-done.discord]
+enabled = true
+channel-id = ""

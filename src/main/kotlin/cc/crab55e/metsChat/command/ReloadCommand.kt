@@ -1,8 +1,6 @@
 package cc.crab55e.metsChat.command
 
-import cc.crab55e.metsChat.BuildConstants
 import cc.crab55e.metsChat.MetsChat
-import cc.crab55e.metsChat.util.PlaceholderFormatter
 import cc.crab55e.metsChat.util.PrefixedMessageBuilder
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
@@ -15,6 +13,7 @@ class ReloadCommand(
         plugin.getConfigManager().reload()
         plugin.getMessageConfigManager().reload()
         plugin.getBackendSupportConfigManager().reload()
+        plugin.getJsonComponentParser().reload()
 
         val messagesConfig = plugin.getMessageConfigManager().get()
         val messageFormat = messagesConfig.getTable("command.reload").getString("format")
