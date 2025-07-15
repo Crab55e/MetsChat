@@ -6,6 +6,7 @@ import com.google.gson.JsonElement
 
 class JsonComponentParser(private val plugin: MetsChat) {
     private var languageFile: LanguageFile? = null
+    private val languageBaseFileName = "language-base.json"
 
     init {
         reload()
@@ -16,7 +17,20 @@ class JsonComponentParser(private val plugin: MetsChat) {
     }
 
     fun reload(): LanguageFile {
-        val file = plugin.getDataDirectory().resolve("language-base.json").toFile()
+        val file = plugin.getDataDirectory().resolve(languageBaseFileName).toFile()
+
+        if (!file.exists()) {
+            file.parentFile.mkdirs()
+            val resourceStream = plugin::class.java.classLoader.getResourceAsStream(languageBaseFileName)
+                ?: throw RuntimeException("$languageBaseFileName is not found!!!")
+
+            resourceStream.use { input ->
+                file.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+        }
+
         val json = JsonParser.parseString(file.readText()).asJsonObject
         val map = json.entrySet().associate { it.key to it.value.asString }
         languageFile = LanguageFile(map)
