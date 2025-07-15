@@ -118,7 +118,7 @@ color = "#4c4c54"
 
 [backend-support.player-events.on-advancement-done]
 [backend-support.player-events.on-advancement-done.in-servers]
-format = "<hover:show_text:'from {senderServer}'><yellow>*</yellow>{message}</hover>"
+format = "<hover:show_text:'from {eventServer}'><yellow>*</yellow>{message}</hover>"
 # placeholders: eventServer, message
 [backend-support.player-events.on-advancement-done.discord]
 author-icon-url = ""
