@@ -42,10 +42,8 @@ class PlayerAdvancementDone(private val plugin: MetsChat) {
                 )
 
                 receiver.sendMessage(
-                    componentMessage.append(
                         MiniMessage.miniMessage().deserialize(
                             inServersMessage
-                        )
                     )
                 )
             }
@@ -71,7 +69,7 @@ class PlayerAdvancementDone(private val plugin: MetsChat) {
             val defaultPlayerIconUrl = messagesConfig.getTable("discord.general").getString("default-player-icon-url")
             var authorIconUrlFormat = onAdvancementDoneMessagesTable.getString("author-icon-url")
             if (authorIconUrlFormat == "") authorIconUrlFormat = defaultPlayerIconUrl
-            logger.info(data.toString())
+
             val playerData = data.getJSONObject("data").getJSONObject("player")
             val authorIconUrl = PlaceholderFormatter.format(
                 authorIconUrlFormat,
