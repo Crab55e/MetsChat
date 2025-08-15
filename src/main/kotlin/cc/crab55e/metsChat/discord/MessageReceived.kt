@@ -63,16 +63,30 @@ class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
         allRoleNames = allRoleNames.removeSuffix(allRoleNamesSeparator)
 
         val minecraftMessageFormat = fromDiscordMessagesTable.getString("format")
-        val minecraftMessage = mm.deserialize( PlaceholderFormatter.format(
-            minecraftMessageFormat,
+        // メッセージ部分をComponent化
+        val messageComponent = mm.deserialize(minecraftMessageContent)
+
+        // {message} を一旦特殊トークンにしてフォーマットを安全に分離
+        val placeholderToken = "%%MESSAGE%%"
+        val formatWithToken = minecraftMessageFormat.replace("{message}", placeholderToken)
+
+        // ヘッダー部分をComponent化（{message}以外を置換）
+        val headerAndTailString = PlaceholderFormatter.format(
+            formatWithToken,
             mapOf(
                 "authorName" to event.author.effectiveName,
-                "message" to minecraftMessageContent,
                 "roleColorHex" to roleColorHex,
                 "allRoleNames" to allRoleNames,
                 "discordMessageUrl" to event.jumpUrl
             )
-        ))
+        )
+
+        // tokenで分割してComponentを結合
+        val parts = headerAndTailString.split(placeholderToken, limit = 2)
+        val minecraftMessage = when (parts.size) {
+            2 -> mm.deserialize(parts[0]).append(messageComponent).append(mm.deserialize(parts[1]))
+            else -> mm.deserialize(parts[0]).append(messageComponent)
+        }
 
 
         plugin.getServer().allPlayers.forEach playerLoop@{
