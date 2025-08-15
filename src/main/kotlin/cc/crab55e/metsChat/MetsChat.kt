@@ -3,6 +3,7 @@ package cc.crab55e.metsChat
 import cc.crab55e.metsChat.command.MetsChatCommand
 import cc.crab55e.metsChat.discord.ButtonInteraction
 import cc.crab55e.metsChat.discord.MessageReceived
+import cc.crab55e.metsChat.discord.SlashCommandInteraction
 import cc.crab55e.metsChat.event.*
 import cc.crab55e.metsChat.gateway.BackendMessage
 import cc.crab55e.metsChat.gateway.BackendSupportServer
@@ -121,7 +122,8 @@ class MetsChat @Inject constructor(
         )
             .addEventListeners(
                 MessageReceived(this),
-                ButtonInteraction(this)
+                ButtonInteraction(this),
+                SlashCommandInteraction(this)
             )
             .setMemberCachePolicy(MemberCachePolicy.ALL)
             .build()
