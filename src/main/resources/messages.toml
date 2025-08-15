@@ -5,6 +5,12 @@ plugin-message-prefix = "<green>[MetsChat]</green> "
 default-player-icon-url = "https://mc-heads.net/combo/{uuid}"
 # placeholders: mcid, uuid, uuidNoDashes, textureId
 
+[discord.commands]
+[discord.commands.playerlist]
+format = "**{currentPlayers}/20** ```{playerNames}```"
+# placeholders: currentPlayers, playerNames
+player-name-separator = ", "
+
 [message-share]
 [message-share.in-servers]
 [message-share.in-servers.player-chat]

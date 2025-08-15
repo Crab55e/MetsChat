@@ -11,6 +11,12 @@ value = "DiscordSRVBotToken"
 type = "system-environ"
 value = "MetsChatWebhookUrl"
 
+[discord.commands]
+[discord.commands.playerlist]
+enabled = true
+send-ephemeral = false
+message-delete-after = -1 # ms, -1 to disable
+
 [message-share]
 [message-share.in-servers]
 [message-share.in-servers.player-chat]

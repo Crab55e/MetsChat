@@ -41,3 +41,9 @@ default-channel-id = "1362971564836130838"
 ```
 標準ではこのように指定されています。`default-channel-id`の値を用意したチャンネルのIDに書き換えます  
 機能ごとに個別に設定することもできるため、必要に応じて[`config.toml`](https://github.com/Crab55e/MetsChat/blob/main/src/main/resources/config.toml)のchannel-idを変更してください
+
+### 4. コマンドの登録
+
+[submit-commands.py](https://github.com/Crab55e/MetsChat/blob/main/submit-commands.py)  
+を使用して、必要なコマンドをbotに登録します  
+ファイル内に含まれる"設定"セクションのtokenとapp_idを適切に設定してください。
