@@ -63,13 +63,8 @@ class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
         allRoleNames = allRoleNames.removeSuffix(allRoleNamesSeparator)
 
         val minecraftMessageFormat = fromDiscordMessagesTable.getString("format")
-        // 1. Discordメッセージを MiniMessage で Component に変換
-        val messageComponent = if (parseMarkdown) {
-            mm.deserialize(minecraftMessageContent)
-        } else {
-            Component.text(minecraftMessageContent)
-        }
-
+        // 1. DiscordメッセージをComponent に変換
+        val messageComponent = Component.text(minecraftMessageContent)
 
         // 2. {message} を一旦削ったフォーマットを用意
         val placeholderToken = "%%MESSAGE%%"
@@ -88,8 +83,8 @@ class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
 
         // 4. tokenで分割 → 前後を Component 化
         val parts = formatted.split(placeholderToken, limit = 2)
-        val header = mm.deserialize(parts[0])
-        val tail = if (parts.size > 1) mm.deserialize(parts[1]) else Component.empty()
+        val header = Component.text(parts[0])
+        val tail = if (parts.size > 1) Component.text(parts[1]) else Component.empty()
 
         // 5. 最後に Component を合体
         val minecraftMessage = header.append(messageComponent).append(tail)
