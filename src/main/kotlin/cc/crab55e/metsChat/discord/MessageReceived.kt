@@ -63,15 +63,20 @@ class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
         allRoleNames = allRoleNames.removeSuffix(allRoleNamesSeparator)
 
         val minecraftMessageFormat = fromDiscordMessagesTable.getString("format")
-        // メッセージ部分をComponent化
-        val messageComponent = mm.deserialize(minecraftMessageContent)
+        // 1. Discordメッセージを MiniMessage で Component に変換
+        val messageComponent = if (parseMarkdown) {
+            mm.deserialize(minecraftMessageContent)
+        } else {
+            Component.text(minecraftMessageContent)
+        }
 
-        // {message} を一旦特殊トークンにしてフォーマットを安全に分離
+
+        // 2. {message} を一旦削ったフォーマットを用意
         val placeholderToken = "%%MESSAGE%%"
         val formatWithToken = minecraftMessageFormat.replace("{message}", placeholderToken)
 
-        // ヘッダー部分をComponent化（{message}以外を置換）
-        val headerAndTailString = PlaceholderFormatter.format(
+        // 3. {authorName}, {roleColorHex} などの置換を実行
+        val formatted = PlaceholderFormatter.format(
             formatWithToken,
             mapOf(
                 "authorName" to event.author.effectiveName,
@@ -81,12 +86,14 @@ class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
             )
         )
 
-        // tokenで分割してComponentを結合
-        val parts = headerAndTailString.split(placeholderToken, limit = 2)
-        val minecraftMessage = when (parts.size) {
-            2 -> mm.deserialize(parts[0]).append(messageComponent).append(mm.deserialize(parts[1]))
-            else -> mm.deserialize(parts[0]).append(messageComponent)
-        }
+        // 4. tokenで分割 → 前後を Component 化
+        val parts = formatted.split(placeholderToken, limit = 2)
+        val header = mm.deserialize(parts[0])
+        val tail = if (parts.size > 1) mm.deserialize(parts[1]) else Component.empty()
+
+        // 5. 最後に Component を合体
+        val minecraftMessage = header.append(messageComponent).append(tail)
+
 
 
         plugin.getServer().allPlayers.forEach playerLoop@{
