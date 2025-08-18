@@ -6,10 +6,13 @@ default-player-icon-url = "https://mc-heads.net/combo/{uuid}"
 # placeholders: mcid, uuid, uuidNoDashes, textureId
 
 [discord.commands]
+command-disabled-message = "このコマンドは無効化されています"
+
 [discord.commands.playerlist]
 format = "**{currentPlayers}/20** ```{playerNames}```"
 # placeholders: currentPlayers, playerNames
 player-name-separator = ", "
+no-players = "現在サーバー内にプレイヤーはいません"
 
 [message-share]
 [message-share.in-servers]
