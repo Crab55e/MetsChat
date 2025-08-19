@@ -75,6 +75,8 @@ format = "[<click:open_url:'{discordMessageUrl}'><hover:show_text:'Discordで開
 # placeholders: authorName, message, roleColorHex, allRoleNames, discordMessageUrl
 parse-markdown = true
 all-role-names-separator = ", "
+reply-format = "[<click:open_url:'{discordMessageUrl}'><hover:show_text:'Discordで開く'><blue>Discord</blue></hover></click> | <hover:show_text:'< {allRoleNames}'><color:#{roleColorHex}>{authorName}</color></hover> | <hover:show_text:'{replyMessage}'><gray><{replyUserName}> に返信</gray></hover> ]  {message}"
+# placeholders: authorName, message, roleColorHex, allRoleNames, discordMessageUrl, replyUserName, replyMesssage
 
 [backend-support]
 [backend-support.plugin-enabled]

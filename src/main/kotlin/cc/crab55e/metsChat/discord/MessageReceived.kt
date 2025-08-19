@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import okhttp3.internal.toHexString
-import java.util.*
 
 
 class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
@@ -39,7 +38,6 @@ class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
         if (!validChannelIds.contains(event.channel.id)) return
 
         val message: Message = event.message
-        // TODO: メッセージがreplyだったら
 
         val fromDiscordMessagesTable = messagesConfig.getTable(fromDiscordTableKey)
 
@@ -62,13 +60,31 @@ class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
         event.member?.roles?.forEach{allRoleNames += it.name + allRoleNamesSeparator}
         allRoleNames = allRoleNames.removeSuffix(allRoleNamesSeparator)
 
-        val minecraftMessageFormat = fromDiscordMessagesTable.getString("format")
+        val referencedMessage = event.message.referencedMessage
+        val messageIsReply = referencedMessage != null
+        val replyUserName = if (messageIsReply) {
+            referencedMessage.author.effectiveName
+        } else {
+            ""
+        }
+        val replyMessage = if (messageIsReply) {
+            referencedMessage.contentRaw
+        } else {
+            ""
+        }
+
+        val minecraftMessageFormat = if (!messageIsReply) {
+            fromDiscordMessagesTable.getString("format")
+        } else {
+            fromDiscordMessagesTable.getString("reply-format")
+        }
         // 1. DiscordメッセージをComponent に変換
         val messageComponent = Component.text(minecraftMessageContent)
 
         // 2. {message} を一旦削ったフォーマットを用意
         val placeholderToken = "%%MESSAGE%%"
         val formatWithToken = minecraftMessageFormat.replace("{message}", placeholderToken)
+
 
         // 3. {authorName}, {roleColorHex} などの置換を実行
         val formatted = PlaceholderFormatter.format(
@@ -77,7 +93,9 @@ class MessageReceived(private val plugin: MetsChat) : ListenerAdapter() {
                 "authorName" to event.author.effectiveName,
                 "roleColorHex" to roleColorHex,
                 "allRoleNames" to allRoleNames,
-                "discordMessageUrl" to event.jumpUrl
+                "discordMessageUrl" to event.jumpUrl,
+                "replyUserName" to replyUserName,
+                "replyMessage" to replyMessage
             )
         )
 
