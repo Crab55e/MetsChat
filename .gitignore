@@ -29,3 +29,6 @@ replay_pid*
 # build
 out/
 build/
+
+# gradle
+.gradle/
