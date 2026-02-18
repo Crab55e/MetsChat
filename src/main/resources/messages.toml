@@ -113,7 +113,7 @@ title = "バックエンドサーバー {backendServer} のタイムアウトか
 desc = "最後のタイムアウト: <t:{lastTimeoutUnix}:T>"
 content = "<@776726560929480707>"
 # placeholders: backendServer, lastTimeoutUnix
-color = "#ff0000"
+color = "#0000ff"
 
 [backend-support.player-events]
 [backend-support.player-events.on-death]
