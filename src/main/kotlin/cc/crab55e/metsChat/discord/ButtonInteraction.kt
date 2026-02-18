@@ -28,7 +28,7 @@ class ButtonInteraction(private val plugin: MetsChat) : ListenerAdapter() {
         } else {
             plugin.getHeartbeatTimeoutEvent().stoppedNotifyLoop = true
             val stoppedMessage = discordNotifyMessagesTable.getString("notify-stopped-message")
-            event.interaction.reply(stoppedMessage).queue()
+            event.interaction.reply(stoppedMessage).setEphemeral(true).queue()
             logger.info("Stopping discord timeout notify message loop.")
             return
         }
