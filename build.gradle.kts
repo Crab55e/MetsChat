@@ -29,8 +29,7 @@ dependencies {
     implementation("net.dv8tion:JDA:5.3.2")
     implementation("org.json:json:20240303")
     implementation("com.google.guava:guava:33.4.8-jre")
-
-
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
 }
 
 tasks {
