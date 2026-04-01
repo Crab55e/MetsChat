@@ -10,13 +10,18 @@ class Heartbeat(private val plugin: MetsChat) {
         val serverName = data.getString("server_id")
         val timestamp = data.getString("timestamp")
 
+        val isNewServer = !heartbeatTracker.hasServer(serverName)
         val server = heartbeatTracker.getServer(serverName)
+
+        if (isNewServer) {
+            PluginEnabled(plugin).handler(data)
+        }
 
         val serverIsResumed = server.timeoutSeconds != null
         if (serverIsResumed) {
             Resumed(plugin).handler(data)
         }
 
-        heartbeatTracker.getServer(serverName).updateHeartbeat(timestamp)
+        server.updateHeartbeat(timestamp)
     }
 }

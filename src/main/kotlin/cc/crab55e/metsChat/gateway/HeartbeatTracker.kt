@@ -14,6 +14,8 @@ class HeartbeatTracker(private val plugin: MetsChat) {
 
     fun getServer(id: String): Server = servers[id] ?: registerServer(id)
 
+    fun hasServer(id: String): Boolean = servers.containsKey(id)
+
     fun removeServer(server: Server): Map<String, Server> {
         servers.remove(server.id)
         return servers

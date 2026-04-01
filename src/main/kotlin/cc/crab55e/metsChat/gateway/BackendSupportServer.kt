@@ -73,7 +73,7 @@ class BackendSupportServer(
 
                                 handler.onBackendMessageReceived(messageDataString)
 
-                                writer.write("{\"ack\": true}\n")
+                                writer.write("{\"ack\": true, \"proxy_start_time\": ${plugin.proxyStartTime}}\n")
                                 writer.flush()
                             }
                         } catch (e: Exception) {

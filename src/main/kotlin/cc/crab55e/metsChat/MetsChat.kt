@@ -48,6 +48,7 @@ class MetsChat @Inject constructor(
     private val jsonComponentParser = JsonComponentParser(this)
 
     val pluginScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    val proxyStartTime: Long = System.currentTimeMillis()
     private var backendSupportServer: BackendSupportServer? = null
 
     // Getter methods
@@ -67,6 +68,7 @@ class MetsChat @Inject constructor(
     fun getJsonComponentParser(): JsonComponentParser = jsonComponentParser
 
     @Subscribe
+    @Suppress("UNUSED_PARAMETER")
     fun onProxyInitialization(event: ProxyInitializeEvent) {
         logger.info("Initializing...")
 
