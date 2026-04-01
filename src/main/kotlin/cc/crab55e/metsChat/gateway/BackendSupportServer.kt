@@ -50,19 +50,18 @@ class BackendSupportServer(
 
                                 val message = reader.readLine() ?: return@use
                                 
-                                val mapType = object : TypeToken<Map<String, Any>>() {}.type
-                                val messageJson = try {
-                                    gson.fromJson<Map<String, Any>>(message, mapType)
-                                } catch (e: JsonSyntaxException) {
+                                val payload = try {
+                                    gson.fromJson(message, BackendPayload::class.java)
+                                } catch (e: Exception) {
                                     logger.warn("Received malformed JSON from BackendSupportClient: $message")
                                     return@use
                                 }
 
-                                val messageData = messageJson["message"] ?: return@use
+                                val messageData = payload.message ?: return@use
                                 val messageDataString = gson.toJson(messageData)
 
                                 val expectedSignature = generateHMAC(messageDataString, expectedSecret)
-                                val clientSignature = messageJson["signature"]
+                                val clientSignature = payload.signature
 
                                 if (clientSignature != expectedSignature) {
                                     writer.write("{\"error\": \"invalid signature\"}\n")
