@@ -1,21 +1,25 @@
 package cc.crab55e.metsChat.gateway.event
 
 import cc.crab55e.metsChat.MetsChat
+import cc.crab55e.metsChat.gateway.GameEventPayload
 import cc.crab55e.metsChat.util.ColorCodeToColor
 import cc.crab55e.metsChat.util.PlaceholderFormatter
-import cc.crab55e.metsChat.util.PlayerSkinTextureIdResolver
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import net.dv8tion.jda.api.EmbedBuilder
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
-import org.json.JSONObject
 
 class PlayerDeath(private val plugin: MetsChat) {
     private val logger = plugin.getLogger()
     private val heartbeatTracker = plugin.getHeartbeatTracker()
-    fun handler(data: JSONObject) {
-        val serverId = data.getString("server_id")
-        val jsonDisplayMessage = data.getString("json_component")
+    private val gson = Gson()
+
+    fun handler(data: JsonObject) {
+        val payload = gson.fromJson(data, GameEventPayload::class.java)
+        val serverId = payload.serverId
+        val jsonDisplayMessage = payload.jsonComponent
         val componentMessage = GsonComponentSerializer.gson().deserialize(jsonDisplayMessage)
         val backendSupportConfig = plugin.getBackendSupportConfigManager().get()
         val messagesConfig = plugin.getMessageConfigManager().get()
@@ -72,14 +76,19 @@ class PlayerDeath(private val plugin: MetsChat) {
             val defaultPlayerIconUrl = messagesConfig.getTable("discord.general").getString("default-player-icon-url")
             var authorIconUrlFormat = onDeathMessagesTable.getString("author-icon-url")
             if (authorIconUrlFormat == "") authorIconUrlFormat = defaultPlayerIconUrl
+            
             logger.info(data.toString())
-            val playerData = data.getJSONObject("data").getJSONObject("player")
+            
+            val playerData = payload.data.player
+            val playerName = playerData.get("name")?.asString ?: ""
+            val playerUuid = playerData.get("uuid")?.asString ?: ""
+            
             val authorIconUrl = PlaceholderFormatter.format(
                 authorIconUrlFormat,
                 mapOf(
-                    "mcid" to playerData.getString("name"),
-                    "uuid" to playerData.getString("uuid"),
-                    "uuidNoDashes" to playerData.getString("name").replace("-", ""),
+                    "mcid" to playerName,
+                    "uuid" to playerUuid,
+                    "uuidNoDashes" to playerName.replace("-", ""),
                 )
             )
 

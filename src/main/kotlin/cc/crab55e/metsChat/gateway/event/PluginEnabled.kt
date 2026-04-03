@@ -1,62 +1,53 @@
 package cc.crab55e.metsChat.gateway.event
 
 import cc.crab55e.metsChat.MetsChat
+import cc.crab55e.metsChat.gateway.BaseBackendEvent
 import cc.crab55e.metsChat.util.ColorCodeToColor
 import cc.crab55e.metsChat.util.PlaceholderFormatter
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
-import org.json.JSONObject
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 
 class PluginEnabled(private val plugin: MetsChat) {
     private val logger = plugin.getLogger()
     private val heartbeatTracker = plugin.getHeartbeatTracker()
-    fun handler(data: JSONObject) {
-        val serverName = data.getString("server_id")
+    private val gson = Gson()
+    
+    fun handler(data: JsonObject) {
+        val payload = gson.fromJson(data, BaseBackendEvent::class.java)
+        val serverName = payload.serverId
         logger.info("Backend server connected: $serverName")
 
         heartbeatTracker.registerServer(serverName)
 
         val backendSupportConfig = plugin.getBackendSupportConfigManager().get()
-        val discordNotifyTable = backendSupportConfig.getTable("gateway.plugin-enabled.discord-notify")
+        val discordNotifyTable = backendSupportConfig.getTable("gateway.plugin-enabled.discord-notify") ?: return
 
-        if (discordNotifyTable.getBoolean("enabled")) {
+        if (discordNotifyTable.getBoolean("enabled", false)) {
             val discordClient = plugin.getDiscordClient()
-            discordClient!!.awaitReady()
+            discordClient?.awaitReady()
 
-            val defaultChannelId = backendSupportConfig.getTable("discord.general").getString("default-channel-id")
-            var channelId = discordNotifyTable.getString("channel-id")
-            if (channelId == "") channelId = defaultChannelId
+            val defaultChannelId = backendSupportConfig.getTable("discord.general")?.getString("default-channel-id") ?: ""
+            var channelId = discordNotifyTable.getString("channel-id") ?: ""
+            if (channelId.isEmpty()) channelId = defaultChannelId
 
 
-            val channel = discordClient.getTextChannelById(channelId)
+            val channel = discordClient?.getTextChannelById(channelId)
             if (channel != null) {
                 val messageConfig = plugin.getMessageConfigManager().get()
                 val discordNotifyMessagesTableKey = "backend-support.plugin-enabled.discord-notify"
-                val discordNotifyMessagesTable = messageConfig.getTable(discordNotifyMessagesTableKey)
+                val discordNotifyMessagesTable = messageConfig.getTable(discordNotifyMessagesTableKey) ?: return
 
-                val titleFormat = discordNotifyMessagesTable.getString("title")
-                val descriptionFormat = discordNotifyMessagesTable.getString("desc")
-                val contentFormat = discordNotifyMessagesTable.getString("content")
+                val titleFormat = discordNotifyMessagesTable.getString("title") ?: ""
+                val descriptionFormat = discordNotifyMessagesTable.getString("desc") ?: ""
+                val contentFormat = discordNotifyMessagesTable.getString("content") ?: ""
 
-                val title = PlaceholderFormatter.format(
-                    titleFormat,
-                    mapOf(
-                        "backendServer" to serverName
-                    )
-                )
-                val description = PlaceholderFormatter.format(
-                    descriptionFormat,
-                    mapOf(
-                        "backendServer" to serverName
-                    )
-                )
-                val content = PlaceholderFormatter.format(
-                    contentFormat,
-                    mapOf(
-                        "backendServer" to serverName
-                    )
-                )
-                val color = ColorCodeToColor(discordNotifyMessagesTable.getString("color")).color
+                val title = PlaceholderFormatter.format(titleFormat, mapOf("backendServer" to serverName))
+                val description = PlaceholderFormatter.format(descriptionFormat, mapOf("backendServer" to serverName))
+                val content = PlaceholderFormatter.format(contentFormat, mapOf("backendServer" to serverName))
+                val colorHex = discordNotifyMessagesTable.getString("color") ?: "#FFFFFF"
+                val color = ColorCodeToColor(colorHex).color
 
                 val embed = EmbedBuilder()
                     .setTitle(title)

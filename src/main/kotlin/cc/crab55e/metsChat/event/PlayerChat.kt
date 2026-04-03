@@ -17,20 +17,22 @@ class ChatEventListener(
     fun onPlayerChat(event: PlayerChatEvent) {
         val config = plugin.getConfigManager().get()
         val messagesConfig = plugin.getMessageConfigManager().get()
-        val senderServerName = event.player.currentServer.get().serverInfo.name
+        
+        val senderServerInfo = event.player.currentServer.orElse(null)?.serverInfo
+        val senderServerName = senderServerInfo?.name ?: "Unknown"
 
         val inServerTableKey = "message-share.in-servers.player-chat"
-        val enabledInServersMessageShare = config.getTable(inServerTableKey).getBoolean("enabled")
+        val inServerTable = config.getTable(inServerTableKey)
+        val enabledInServersMessageShare = inServerTable?.getBoolean("enabled", false) ?: false
+        
         if (enabledInServersMessageShare) {
-
-            val inServerMessageShareFormat = messagesConfig.getTable(inServerTableKey).getString("format")
-            server.allPlayers.forEach playerLoop@{
-                val receiver = it
-                val receiverServerName = receiver.currentServer.get().serverInfo.name
-                if (receiverServerName == senderServerName) return@playerLoop
-
-                val deliveringMessage = mm.deserialize(
-                    PlaceholderFormatter.format(
+            val messagesInServerTable = messagesConfig.getTable(inServerTableKey)
+            val inServerMessageShareFormat = messagesInServerTable?.getString("format") ?: ""
+            
+            server.allPlayers.forEach { receiver ->
+                val receiverServerName = receiver.currentServer.orElse(null)?.serverInfo?.name ?: "Unknown"
+                if (receiverServerName != senderServerName) {
+                    val formattedString = PlaceholderFormatter.format(
                         inServerMessageShareFormat,
                         mapOf(
                             "senderServer" to senderServerName,
@@ -38,16 +40,18 @@ class ChatEventListener(
                             "message" to event.message
                         )
                     )
-                )
-                receiver.sendMessage(deliveringMessage)
+                    receiver.sendMessage(mm.deserialize(formattedString))
+                }
             }
         }
 
         val toDiscordTableKey = "message-share.to-discord.player-chat"
-        val toDiscordTable = config.getTable(toDiscordTableKey)
-        if (config.getTable(toDiscordTableKey).getBoolean("enabled")) {
+        val toDiscordTable = config.getTable(toDiscordTableKey) ?: return
+        
+        if (toDiscordTable.getBoolean("enabled", false)) {
+            val toDiscordMessagesTable = messagesConfig.getTable(toDiscordTableKey) ?: return
             val content = PlaceholderFormatter.format(
-                messagesConfig.getTable(toDiscordTableKey).getString("content"),
+                toDiscordMessagesTable.getString("content") ?: "",
                 mapOf(
                     "senderName" to event.player.username,
                     "message" to event.message,
@@ -56,14 +60,15 @@ class ChatEventListener(
             )
 
             val toDiscordWebhookTableKey = "message-share.to-discord.player-chat.webhook"
-            if (config.getTable(toDiscordWebhookTableKey).getBoolean("enabled")) {
-                val toDiscordWebhookMessagesTable = messagesConfig.getTable(toDiscordWebhookTableKey)
-
+            val webhookTable = config.getTable(toDiscordWebhookTableKey)
+            
+            if (webhookTable != null && webhookTable.getBoolean("enabled", false)) {
+                val toDiscordWebhookMessagesTable = messagesConfig.getTable(toDiscordWebhookTableKey) ?: return
                 val senderTextureId = PlayerSkinTextureIdResolver(event.player).textureId
 
-                val defaultPlayerIconUrl = messagesConfig.getTable("discord.general").getString("default-player-icon-url")
-                var authorIconUrlFormat = toDiscordWebhookMessagesTable.getString("author-icon-url")
-                if (authorIconUrlFormat == "") authorIconUrlFormat = defaultPlayerIconUrl
+                val defaultPlayerIconUrl = messagesConfig.getTable("discord.general")?.getString("default-player-icon-url") ?: ""
+                var authorIconUrlFormat = toDiscordWebhookMessagesTable.getString("author-icon-url") ?: ""
+                if (authorIconUrlFormat.isEmpty()) authorIconUrlFormat = defaultPlayerIconUrl
 
                 val authorIconUrl = PlaceholderFormatter.format(
                     authorIconUrlFormat,
@@ -76,7 +81,7 @@ class ChatEventListener(
                 )
 
                 val username = PlaceholderFormatter.format(
-                    toDiscordWebhookMessagesTable.getString("username"),
+                    toDiscordWebhookMessagesTable.getString("username") ?: "",
                     mapOf(
                         "senderName" to event.player.username,
                         "message" to event.message,
@@ -84,37 +89,45 @@ class ChatEventListener(
                     )
                 )
 
-                val webhookUrl: String
-                val discordWebhookUrlTable = config.getTable("discord.webhook-url")
-                val discordWebhookUrlType = discordWebhookUrlTable.getString("type")
-                val discordWebhookUrlValue = discordWebhookUrlTable.getString("value")
-                if (discordWebhookUrlType == "system-environ") {
-                    webhookUrl = System.getenv(discordWebhookUrlValue)
-                } else if (discordWebhookUrlType == "raw-string") {
-                    webhookUrl = discordWebhookUrlValue
-                } else {
-                    logger.error("$discordWebhookUrlType is invalid type.")
-                    return
+                val discordWebhookUrlTable = config.getTable("discord.webhook-url") ?: return
+                val discordWebhookUrlType = discordWebhookUrlTable.getString("type") ?: ""
+                val discordWebhookUrlValue = discordWebhookUrlTable.getString("value") ?: ""
+                
+                val webhookUrl = when (discordWebhookUrlType) {
+                    "system-environ" -> System.getenv(discordWebhookUrlValue) ?: ""
+                    "raw-string" -> discordWebhookUrlValue
+                    else -> {
+                        logger.error("$discordWebhookUrlType is an invalid webhook url type.")
+                        return
+                    }
                 }
 
-                val webhook = WebhookWrapper(webhookUrl, plugin)
-                val wAllowedMentions = AllowedMentions()
-                val webhookMessage = Message(
-                    username = username,
-                    avatarURL = authorIconUrl,
-                    content = content,
-                    allowedMentions = wAllowedMentions
-                )
-                webhook.send(webhookMessage)
+                if (webhookUrl.isNotEmpty()) {
+                    val webhook = WebhookWrapper(webhookUrl, plugin)
+                    val wAllowedMentions = AllowedMentions()
+                    val webhookMessage = Message(
+                        username = username,
+                        avatarURL = authorIconUrl,
+                        content = content,
+                        allowedMentions = wAllowedMentions
+                    )
+                    webhook.send(webhookMessage)
+                }
 
             } else {
                 val discordGeneralTable = config.getTable("discord.general")
-                val defaultChannelId = discordGeneralTable.getString("default-channel-id")
+                val defaultChannelId = discordGeneralTable?.getString("default-channel-id") ?: ""
 
-                var channelId = toDiscordTable.getString("channel-id")
-                if (channelId == "") channelId = defaultChannelId
-                logger.info("cid $channelId, dcid $defaultChannelId")
-                // TODO: webhookじゃなくてbotから直送りしたいときの処理を書く、今はめんどい
+                var channelId = toDiscordTable.getString("channel-id") ?: ""
+                if (channelId.isEmpty()) channelId = defaultChannelId
+                logger.debug("Routing message to bot channel: cid $channelId, dcid $defaultChannelId")
+                
+                val channel = plugin.getDiscordClient()?.getChannelById(net.dv8tion.jda.api.entities.channel.concrete.TextChannel::class.java, channelId)
+                if (channel != null) {
+                    channel.sendMessage(content).queue()
+                } else {
+                    logger.warn("Failed to find Discord channel with ID $channelId")
+                }
             }
         }
     }
